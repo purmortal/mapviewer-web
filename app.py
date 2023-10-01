@@ -14,6 +14,7 @@ import warnings
 warnings.filterwarnings("ignore")
 
 path_gist_run = '/home/zwan0382/Documents/projects/mapviewer-web/NGC0000Example'
+# path_gist_run = '/home/zwan0382/Documents/projects/mapviewer-web/resultsRevisedREr5'
 database = gistDataBase(path_gist_run)
 database.loadData()
 
@@ -34,7 +35,7 @@ app.layout = dmc.Container([
                 children=[
                     dcc.Graph(id='interaction-click',
                               figure=plotMap(database, 'KIN', 'V'),
-                              style={'height': '50vh'},
+                              style={'height': '55vh'},
                               ),
                 ],
                 span=6,
@@ -49,7 +50,7 @@ app.layout = dmc.Container([
                         defaultColDef={"resizable": True, "sortable": True, "filter": True},
                         className="ag-theme-balham",
                         dashGridOptions={"rowSelection":"single"},
-                        style={'height': '50vh'},
+                        style={'height': '55vh'},
                         # getRowId="params.data.id",
                         )
                 ],
@@ -62,38 +63,6 @@ app.layout = dmc.Container([
 
     dmc.Grid(
         id = 'click-data', children=[],
-        # children=[
-        #     dmc.Col(
-        #         children=[
-        #             # dcc.Graph(id='click-data'),
-        #             dcc.Graph(
-        #                 figure=plotSpectraKIN(database, database.Spectra[1], database.kinBestfit[1], database.kinGoodpix),
-        #                 style={'height': '38vh'}
-        #             ),
-        #             dcc.Graph(
-        #                 figure=plotSpectraGAS(database, database.Spectra[1], database.gasBestfit[1], database.kinGoodpix, 0, 0),
-        #                 style={'height': '38vh'}
-        #             ),
-        #             dcc.Graph(
-        #                 figure=plotSpectraSFH(database, database.Spectra[1], database.sfhBestfit[1], database.kinGoodpix, 0, 0),
-        #                 style={'height': '38vh'}
-        #             ),
-        #         ],
-        #         span=8,),
-        #     dmc.Col(
-        #         children=[
-        #             dcc.Graph(
-        #                 figure=plotSFH(database, idxBinShort=0),
-        #                 style={'height': '38vh'}),
-        #             dcc.Graph(
-        #                 figure=plotMDF(database, idxBinShort=0, idx_alpha=0),
-        #                 style={'height': '38vh'}),
-        #             dcc.Graph(
-        #                 figure=plotMDF(database, idxBinShort=0, idx_alpha=0),
-        #                 style={'height': '38vh'}),
-        #         ],
-        #         span=4,),
-        # ],
         justify='space-around',
         align='flex-start',
         gutter='md',
@@ -109,32 +78,27 @@ def display_click_data(clickData):
     return [
             dmc.Col(
                 children=[
-                    dcc.Graph(
-                        figure=plotSpectraKIN(database, idxBinShort),
-                        style={'height': '38vh'}
-                    ),
-                    dcc.Graph(
-                        figure=plotSpectraGAS(database, idxBinShort, idxBinLong),
-                        style={'height': '38vh'}
-                    ),
-                    dcc.Graph(
-                        figure=plotSpectraSFH(database, idxBinShort),
-                        style={'height': '38vh'}
-                    ),
+                             dcc.Graph(
+                                 figure=x,
+                                 style={'height': '38vh'}
+                             )
+                             for x in plotSpectra(database, idxBinShort, idxBinLong)
                 ],
                 span=8,),
             dmc.Col(
                 children=[
-                    dcc.Graph(
-                        figure=plotSFH(database, idxBinShort),
-                        style={'height': '38vh'}),
-                    dcc.Graph(
-                        figure=plotMDF(database, idxBinShort, idx_alpha=0),
-                        style={'height': '38vh'}),
-                    dcc.Graph(
-                        figure=plotMDF(database, idxBinShort, idx_alpha=0),
-                        style={'height': '38vh'}),
-                ],
+                             dcc.Graph(
+                                 figure=plotSFH(database, idxBinShort, idxBinLong),
+                                 style={'height': '38vh'}
+                             )
+                         ] +
+                         [
+                             dcc.Graph(
+                                 figure=x,
+                                 style={'height': '38vh'}
+                             )
+                             for x in plotMDF(database, idxBinShort)
+                         ],
                 span=4,),
         ]
 
