@@ -1,6 +1,7 @@
 from DataLoader import gistDataBase
 from plotData import *
-
+from helperFunctions import *
+import json
 
 from dash import Dash, html, dash_table, dcc, callback, Output, Input
 import pandas as pd
@@ -9,6 +10,8 @@ from astropy.table import Table
 import dash_mantine_components as dmc
 import dash_ag_grid as dag
 
+import warnings
+warnings.filterwarnings("ignore")
 
 path_gist_run = '/home/zwan0382/Documents/projects/mapviewer-web/NGC0000Example'
 database = gistDataBase(path_gist_run)
@@ -29,34 +32,13 @@ app.layout = dmc.Container([
         children=[
             dmc.Col(
                 children=[
-                    dcc.Graph(figure=plotMap(database, 'KIN', 'V'))],
-                span=6,),
-
-            # dmc.Col(
-            #     children=[
-            #         dash_table.DataTable(
-            #             data=Table(database.kinResults_Vorbin).to_pandas().round(3).to_dict('records'),
-            #             fixed_rows={'headers': True},
-            #             # page_size=12,
-            #             page_action='none',
-            #             style_table={'height': 400, 'overflowY': 'auto'},
-            #             style_cell={'textAlign': 'center'},
-            #             # sort_action='custom',
-            #             # sort_mode='single',
-            #             # sort_by=[]
-            #             style_data_conditional=[
-            #                 {
-            #                     'if': {'row_index': 'odd'},
-            #                     'backgroundColor': 'rgb(220, 220, 220)',
-            #                 }
-            #             ],
-            #             style_header={
-            #                 'backgroundColor': 'rgb(210, 210, 210)',
-            #                 'color': 'black',
-            #                 'fontWeight': 'bold'
-            #             }
-            #         )],
-            #     span=6),
+                    dcc.Graph(id='interaction-click',
+                              figure=plotMap(database, 'KIN', 'V'),
+                              style={'height': '50vh'},
+                              ),
+                ],
+                span=6,
+            ),
             dmc.Col(
                 children=[
                     dag.AgGrid(
@@ -67,6 +49,7 @@ app.layout = dmc.Container([
                         defaultColDef={"resizable": True, "sortable": True, "filter": True},
                         className="ag-theme-balham",
                         dashGridOptions={"rowSelection":"single"},
+                        style={'height': '50vh'},
                         # getRowId="params.data.id",
                         )
                 ],
@@ -78,51 +61,85 @@ app.layout = dmc.Container([
     ),
 
     dmc.Grid(
-        children=[
-            dmc.Col(
-                children=[
-                    dcc.Graph(
-                        figure=plotSpectraKIN(database, database.Spectra[1], database.kinBestfit[1], database.kinGoodpix),
-                        style={'height': '38vh'})],
-                span=8,),
-            dmc.Col(
-                children=[
-                    dcc.Graph(
-                        figure=plotSFH(database, idxBinShort=0),
-                        style={'height': '38vh'})],
-                span=4,),
-
-            dmc.Col(
-                children=[
-                    dcc.Graph(
-                        figure=plotSpectraGAS(database, database.Spectra[1], database.gasBestfit[1], database.kinGoodpix, 0, 0),
-                        style={'height': '38vh'})],
-                span=8,),
-            dmc.Col(
-                children=[
-                    dcc.Graph(
-                        figure=plotMDF(database, idxBinShort=0, idx_alpha=0),
-                        style={'height': '38vh'})],
-                span=4,),
-
-            dmc.Col(
-                children=[
-                    dcc.Graph(
-                        figure=plotSpectraSFH(database, database.Spectra[1], database.sfhBestfit[1], database.kinGoodpix, 0, 0),
-                        style={'height': '38vh'})],
-                span=8,),
-            # dmc.Col(
-            #     children=[
-            #         dcc.Graph(
-            #             figure=plotMDF(database, idxBinShort=0, idx_alpha=1),
-            #             style={'height': '38vh'})],
-            #     span=4,),
-        ],
-        justify='space-between',
-        align='center',
+        id = 'click-data', children=[],
+        # children=[
+        #     dmc.Col(
+        #         children=[
+        #             # dcc.Graph(id='click-data'),
+        #             dcc.Graph(
+        #                 figure=plotSpectraKIN(database, database.Spectra[1], database.kinBestfit[1], database.kinGoodpix),
+        #                 style={'height': '38vh'}
+        #             ),
+        #             dcc.Graph(
+        #                 figure=plotSpectraGAS(database, database.Spectra[1], database.gasBestfit[1], database.kinGoodpix, 0, 0),
+        #                 style={'height': '38vh'}
+        #             ),
+        #             dcc.Graph(
+        #                 figure=plotSpectraSFH(database, database.Spectra[1], database.sfhBestfit[1], database.kinGoodpix, 0, 0),
+        #                 style={'height': '38vh'}
+        #             ),
+        #         ],
+        #         span=8,),
+        #     dmc.Col(
+        #         children=[
+        #             dcc.Graph(
+        #                 figure=plotSFH(database, idxBinShort=0),
+        #                 style={'height': '38vh'}),
+        #             dcc.Graph(
+        #                 figure=plotMDF(database, idxBinShort=0, idx_alpha=0),
+        #                 style={'height': '38vh'}),
+        #             dcc.Graph(
+        #                 figure=plotMDF(database, idxBinShort=0, idx_alpha=0),
+        #                 style={'height': '38vh'}),
+        #         ],
+        #         span=4,),
+        # ],
+        justify='space-around',
+        align='flex-start',
         gutter='md',
     ),
 ], fluid=True)
+
+
+@callback(
+    Output('click-data', 'children'),
+    Input('interaction-click', 'clickData'))
+def display_click_data(clickData):
+    idxBinLong, idxBinShort = getVoronoiBin(database, clickData['points'][0]['x'], clickData['points'][0]['y'])
+    return [
+            dmc.Col(
+                children=[
+                    dcc.Graph(
+                        figure=plotSpectraKIN(database, idxBinShort),
+                        style={'height': '38vh'}
+                    ),
+                    dcc.Graph(
+                        figure=plotSpectraGAS(database, idxBinShort, idxBinLong),
+                        style={'height': '38vh'}
+                    ),
+                    dcc.Graph(
+                        figure=plotSpectraSFH(database, idxBinShort),
+                        style={'height': '38vh'}
+                    ),
+                ],
+                span=8,),
+            dmc.Col(
+                children=[
+                    dcc.Graph(
+                        figure=plotSFH(database, idxBinShort),
+                        style={'height': '38vh'}),
+                    dcc.Graph(
+                        figure=plotMDF(database, idxBinShort, idx_alpha=0),
+                        style={'height': '38vh'}),
+                    dcc.Graph(
+                        figure=plotMDF(database, idxBinShort, idx_alpha=0),
+                        style={'height': '38vh'}),
+                ],
+                span=4,),
+        ]
+
+
+
 
 # # Add controls to build the interaction
 # @callback(

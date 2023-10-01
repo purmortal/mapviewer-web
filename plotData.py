@@ -86,7 +86,11 @@ def plotMap(self, module, maptype):
 # ============================================================================ #
 #                              P L O T   D A T A                               #
 # ============================================================================ #
-def plotSpectraKIN(self, spectra, bestfit, goodpix):
+def plotSpectraKIN(self, idxBinShort):
+    spectra = self.Spectra[idxBinShort]
+    bestfit = self.kinBestfit[idxBinShort]
+    goodpix = self.kinGoodpix
+
     # Compile information on masked regions
     masked = np.flatnonzero( np.abs(np.diff(goodpix)) > 1)
     vlines = []
@@ -127,12 +131,15 @@ def plotSpectraKIN(self, spectra, bestfit, goodpix):
             fig.add_vrect(x0=self.LambdaLIN[idxLam][vlines[i]], x1=self.LambdaLIN[idxLam][vlines[i+1]], line_width=0, fillcolor="grey", opacity=0.1)
     fig.update_layout(xaxis=dict(range=[self.LambdaLIN[idxLam][0], self.LambdaLIN[idxLam][-1]]),
                       xaxis_title='Wavelength (Angstrom)', yaxis_title='Flux', showlegend=False,
-                      margin=dict(l=0, r=0, t=0, b=0))
+                      margin=dict(l=15, r=15, t=20, b=15))
 
     return fig
 
 
-def plotSpectraGAS(self, spectra, bestfit, goodpix, idxBinShort, idxBinLong):
+def plotSpectraGAS(self, idxBinShort, idxBinLong):
+    spectra = self.Spectra[idxBinShort]
+    bestfit = self.gasBestfit[idxBinShort]
+    goodpix = self.kinGoodpix
 
     # Compile information on masked regions
     masked = np.flatnonzero( np.abs(np.diff(goodpix)) > 1)
@@ -187,7 +194,7 @@ def plotSpectraGAS(self, spectra, bestfit, goodpix, idxBinShort, idxBinLong):
             fig.add_vrect(x0=self.LambdaLIN[idxLam][vlines[i]], x1=self.LambdaLIN[idxLam][vlines[i+1]], line_width=0, fillcolor="grey", opacity=0.1)
     fig.update_layout(xaxis=dict(range=[self.LambdaLIN[idxLam][0], self.LambdaLIN[idxLam][-1]]),
                       xaxis_title='Wavelength (Angstrom)', yaxis_title='Flux', showlegend=False,
-                      margin=dict(l=0, r=0, t=0, b=0))
+                      margin=dict(l=15, r=15, t=20, b=15))
     # self.axes[panel].set_xlim([self.Lambda[idxLam][0], self.Lambda[idxLam][-1]])
     # self.axes[panel].set_ylabel('Flux')
     #
@@ -196,7 +203,10 @@ def plotSpectraGAS(self, spectra, bestfit, goodpix, idxBinShort, idxBinLong):
     return fig
 
 
-def plotSpectraSFH(self, spectra, bestfit, goodpix, idxBinShort, idxBinLong):
+def plotSpectraSFH(self, idxBinShort):
+    spectra = self.Spectra[idxBinShort]
+    bestfit = self.sfhBestfit[idxBinShort]
+    goodpix = self.kinGoodpix
 
     # Compile information on masked regions
     masked = np.flatnonzero( np.abs(np.diff(goodpix)) > 1)
@@ -255,7 +265,7 @@ def plotSpectraSFH(self, spectra, bestfit, goodpix, idxBinShort, idxBinLong):
     # self.axes[panel].set_ylabel('Flux')
     fig.update_layout(xaxis=dict(range=[self.LambdaLIN[idxLam][0], self.LambdaLIN[idxLam][-1]]),
                       xaxis_title='Wavelength (Angstrom)', yaxis_title='Flux', showlegend=False,
-                      margin=dict(l=0, r=0, t=0, b=0))
+                      margin=dict(l=15, r=15, t=20, b=15))
     # ticks = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format( np.exp(x) ))
     # self.axes[panel].xaxis.set_major_formatter(ticks)
     return fig
@@ -278,7 +288,7 @@ def plotSFH(self, idxBinShort):
                              'xanchor':'center', 'yanchor':'top'},
                       xaxis_title='Age [Gyr]',
                       yaxis_title='#', showlegend=False,
-                      margin=dict(l=0, r=0, t=20, b=0))
+                      margin=dict(l=20, r=20, t=20, b=20))
     return fig
 
 def plotMDF(self, idxBinShort, idx_alpha):
@@ -287,5 +297,5 @@ def plotMDF(self, idxBinShort, idx_alpha):
                                     z=self.Weights[idxBinShort,:,:,idx_alpha],
                                     type='heatmap',
                                     colorscale='Viridis'))
-    fig.update_layout(xaxis_title='Age [Gyr]', yaxis_title='[M/H]', margin=dict(l=0, r=0, t=0, b=0))
+    fig.update_layout(xaxis_title='Age [Gyr]', yaxis_title='[M/H]', margin=dict(l=15, r=15, t=20, b=15))
     return fig
