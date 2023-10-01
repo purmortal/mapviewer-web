@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="PublishConfigData" autoUpload="Always" serverName="sg" remoteFilesAllowedToDisappearOnAutoupload="false" confirmBeforeUploading="false" autoUploadExternalChanges="true">
+    <option name="confirmBeforeUploading" value="false" />
+    <serverData>
+      <paths name="photon-sg">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/suphys/zwan0382/Documents/projects/mapviewer-web" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="yoga-sg">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/zwan0382/Documents/projects/mapviewer-web" local="$PROJECT_DIR$" web="/" />
+          </mappings>
+        </serverdata>
+      </paths>
+      <paths name="zwan0382@purmortal.ddns.net:22 password (2)">
+        <serverdata>
+          <mappings>
+            <mapping deploy="/home/zwan0382/Documents/projects/mapviewer-web" local="$PROJECT_DIR$" />
+          </mappings>
+        </serverdata>
+      </paths>
+    </serverData>
+    <option name="myAutoUpload" value="ALWAYS" />
+  </component>
+</project>

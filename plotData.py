@@ -71,8 +71,8 @@ def plotMap(self, module, maptype):
     elif maptype == 'ALPHA':   clabel="[Mg/Fe]"      ; cmap='plasma'
     else:                      clabel=maptype        ; cmap='plasma'
 
-    x = np.arange(xmin, xmax, self.pixelsize)
-    y = np.arange(ymin, ymax, self.pixelsize)
+    x = np.arange(xmin-self.pixelsize/2, xmax+self.pixelsize/2, self.pixelsize)
+    y = np.arange(ymin-self.pixelsize/2, ymax+self.pixelsize/2, self.pixelsize)
     fig = px.imshow(np.rot90(image)[::-1],
                     x=x,
                     y=y,
@@ -132,7 +132,7 @@ def plotSpectraKIN(self, spectra, bestfit, goodpix):
     return fig
 
 
-def plotSpectraGAS(self, spectra, bestfit, goodpix):
+def plotSpectraGAS(self, spectra, bestfit, goodpix, idxBinShort, idxBinLong):
 
     # Compile information on masked regions
     masked = np.flatnonzero( np.abs(np.diff(goodpix)) > 1)
@@ -155,11 +155,11 @@ def plotSpectraGAS(self, spectra, bestfit, goodpix):
 
     fig = go.Figure()
     if self.gasLevel == 'BIN':
-        fig.add_trace(go.Scatter(x=self.gasLambdaLIN, y=self.EmissionSubtractedSpectraBIN[self.idxBinShort,:],
+        fig.add_trace(go.Scatter(x=self.gasLambdaLIN, y=self.EmissionSubtractedSpectraBIN[idxBinShort,:],
                              name='gasLevelBIN', mode='lines', line=dict(color='orange',     width=2)))
         # self.axes[panel].plot(self.gasLambda, self.EmissionSubtractedSpectraBIN[self.idxBinShort,:], color='orange', linewidth=2)
     elif self.gasLevel == 'SPAXEL':
-        fig.add_trace(go.Scatter(x=self.gasLambdaLIN, y=self.EmissionSubtractedSpectraSPAXEL[self.idxBinLong,:],
+        fig.add_trace(go.Scatter(x=self.gasLambdaLIN, y=self.EmissionSubtractedSpectraSPAXEL[idxBinLong,:],
                              name='gasLevelSPAXEL', mode='lines', line=dict(color='orange',     width=2)))
         # self.axes[panel].plot(self.gasLambda, self.EmissionSubtractedSpectraSPAXEL[self.idxBinLong,:], color='orange', linewidth=2)
 
@@ -196,7 +196,7 @@ def plotSpectraGAS(self, spectra, bestfit, goodpix):
     return fig
 
 
-def plotSpectraSFH(self, spectra, bestfit, goodpix):
+def plotSpectraSFH(self, spectra, bestfit, goodpix, idxBinShort, idxBinLong):
 
     # Compile information on masked regions
     masked = np.flatnonzero( np.abs(np.diff(goodpix)) > 1)
@@ -224,9 +224,9 @@ def plotSpectraSFH(self, spectra, bestfit, goodpix):
         idxLamGand = np.arange(idxMin, idxMax+1)
         # self.axes[panel].plot(self.gasLambda[idxLamGand], self.EmissionSubtractedSpectraBIN[self.idxBinShort,idxLamGand],                    color='orange',    linewidth=2)
         # self.axes[panel].plot(self.gasLambda[idxLamGand], self.EmissionSubtractedSpectraBIN[self.idxBinShort,idxLamGand] - bestfit + offset, color='limegreen', linewidth=2)
-        fig.add_trace(go.Scatter(x=self.gasLambdaLIN[idxLamGand], y=self.EmissionSubtractedSpectraBIN[self.idxBinShort,idxLamGand],
+        fig.add_trace(go.Scatter(x=self.gasLambdaLIN[idxLamGand], y=self.EmissionSubtractedSpectraBIN[idxBinShort,idxLamGand],
                      name=None, mode='lines', line=dict(color='orange',     width=2)))
-        fig.add_trace(go.Scatter(x=self.gasLambdaLIN[idxLamGand], y=self.EmissionSubtractedSpectraBIN[self.idxBinShort,idxLamGand] - bestfit + offset,
+        fig.add_trace(go.Scatter(x=self.gasLambdaLIN[idxLamGand], y=self.EmissionSubtractedSpectraBIN[idxBinShort,idxLamGand] - bestfit + offset,
                      name=None, mode='lines', line=dict(color='limegreen',     width=2)))
     except:
         pass

@@ -10,7 +10,7 @@ import dash_mantine_components as dmc
 import dash_ag_grid as dag
 
 
-path_gist_run = '/home/zwan0382/Documents/projects/mapviewer-web/resultsRevisedREr5'
+path_gist_run = '/home/zwan0382/Documents/projects/mapviewer-web/NGC0000Example'
 database = gistDataBase(path_gist_run)
 database.loadData()
 
@@ -60,11 +60,13 @@ app.layout = dmc.Container([
             dmc.Col(
                 children=[
                     dag.AgGrid(
-                        rowData=Table(database.kinResults_Vorbin).to_pandas().round(3).to_dict('records'),
-                        columnDefs=[{"headerName": "BIN_ID", "valueGetter": {"function": "params.node.id"}}] +
-                                   [{"field": i} for i in Table(database.kinResults_Vorbin).to_pandas().columns],
+                        rowData=Table(database.kinResults_Vorbin).to_pandas().to_dict('records'),
+                        columnDefs=[{"headerName": "BIN_ID", "valueGetter": {"function": "params.node.id"}, "pinned": "left", "lockPinned": True}] +
+                                   [{"field": i, "valueFormatter": {"function": "d3.format(',.3f')(params.value)"}} for i in Table(database.kinResults_Vorbin).to_pandas().columns],
+                        columnSize="autoSize",
                         defaultColDef={"resizable": True, "sortable": True, "filter": True},
                         className="ag-theme-balham",
+                        dashGridOptions={"rowSelection":"single"},
                         # getRowId="params.data.id",
                         )
                 ],
@@ -93,7 +95,7 @@ app.layout = dmc.Container([
             dmc.Col(
                 children=[
                     dcc.Graph(
-                        figure=plotSpectraKIN(database, database.Spectra[1], database.kinBestfit[1], database.kinGoodpix),
+                        figure=plotSpectraGAS(database, database.Spectra[1], database.gasBestfit[1], database.kinGoodpix, 0, 0),
                         style={'height': '38vh'})],
                 span=8,),
             dmc.Col(
@@ -106,17 +108,17 @@ app.layout = dmc.Container([
             dmc.Col(
                 children=[
                     dcc.Graph(
-                        figure=plotSpectraSFH(database, database.Spectra[1], database.sfhBestfit[1], database.kinGoodpix),
+                        figure=plotSpectraSFH(database, database.Spectra[1], database.sfhBestfit[1], database.kinGoodpix, 0, 0),
                         style={'height': '38vh'})],
                 span=8,),
-            dmc.Col(
-                children=[
-                    dcc.Graph(
-                        figure=plotMDF(database, idxBinShort=0, idx_alpha=1),
-                        style={'height': '38vh'})],
-                span=4,),
+            # dmc.Col(
+            #     children=[
+            #         dcc.Graph(
+            #             figure=plotMDF(database, idxBinShort=0, idx_alpha=1),
+            #             style={'height': '38vh'})],
+            #     span=4,),
         ],
-        justify='center',
+        justify='space-between',
         align='center',
         gutter='md',
     ),
