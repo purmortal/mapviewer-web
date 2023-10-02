@@ -1,4 +1,4 @@
-from DataLoader import gistDataBase
+from loadData import gistDataBase
 from plotData import *
 from helperFunctions import *
 import json
@@ -9,21 +9,23 @@ from astropy.table import Table
 # import plotly.express as px
 import dash_mantine_components as dmc
 import dash_ag_grid as dag
+from dash.exceptions import PreventUpdate
 
 import warnings
 warnings.filterwarnings("ignore")
 
+# Incorporate data
 path_gist_run = '/home/zwan0382/Documents/projects/mapviewer-web/NGC0000Example'
 # path_gist_run = '/home/zwan0382/Documents/projects/mapviewer-web/resultsRevisedREr5'
 database = gistDataBase(path_gist_run)
 database.loadData()
+# df = pd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/gapminder2007.csv")
 
-# Incorporate data
-df = pd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/gapminder2007.csv")
 
 # Initialize the app - incorporate a Dash Mantine theme
 external_stylesheets = [dmc.theme.DEFAULT_COLORS]
 app = Dash(__name__, external_stylesheets=external_stylesheets)
+
 
 # App layout
 app.layout = dmc.Container([
@@ -61,58 +63,44 @@ app.layout = dmc.Container([
         gutter='md',
     ),
 
+    # dmc.Grid(
+    #     id = 'click-data-spec',
+    #     justify='space-around',
+    #     align='flex-start',
+    #     gutter='md',
+    # ),
+
     dmc.Grid(
-        id = 'click-data', children=[],
+        children=[
+            dmc.Col(
+                id = 'click-data-spec',
+                span=8,),
+            dmc.Col(
+                id='click-data-mfd',
+                span=4,),
+        ],
         justify='space-around',
         align='flex-start',
         gutter='md',
     ),
+
 ], fluid=True)
 
 
 @callback(
-    Output('click-data', 'children'),
+    Output('click-data-spec', 'children'),
+    Output('click-data-mfd', 'children'),
     Input('interaction-click', 'clickData'))
 def display_click_data(clickData):
-    idxBinLong, idxBinShort = getVoronoiBin(database, clickData['points'][0]['x'], clickData['points'][0]['y'])
-    return [
-            dmc.Col(
-                children=[
-                             dcc.Graph(
-                                 figure=x,
-                                 style={'height': '38vh'}
-                             )
-                             for x in plotSpectra(database, idxBinShort, idxBinLong)
-                ],
-                span=8,),
-            dmc.Col(
-                children=[
-                             dcc.Graph(
-                                 figure=plotSFH(database, idxBinShort, idxBinLong),
-                                 style={'height': '38vh'}
-                             )
-                         ] +
-                         [
-                             dcc.Graph(
-                                 figure=x,
-                                 style={'height': '38vh'}
-                             )
-                             for x in plotMDF(database, idxBinShort)
-                         ],
-                span=4,),
-        ]
+    if clickData is None:
+        raise PreventUpdate
+    else:
+        idxBinLong, idxBinShort = getVoronoiBin(database, clickData['points'][0]['x'], clickData['points'][0]['y'])
+        database.idxBinLong = idxBinLong
+        database.idxBinShort = idxBinShort
+        return [ dcc.Graph(figure=x, style={'height': '38vh'}) for x in plotSpectra(database) ], \
+               [ dcc.Graph(figure=plotSFH(database), style={'height': '38vh'} ) ] + [ dcc.Graph( figure=x, style={'height': '38vh'} ) for x in plotMDF(database) ]
 
-
-
-
-# # Add controls to build the interaction
-# @callback(
-#     Output(component_id='graph-placeholder', component_property='figure'),
-#     Input(component_id='my-dmc-radio-item', component_property='value')
-# )
-# def update_graph(col_chosen):
-#     fig = px.histogram(df, x='continent', y=col_chosen, histfunc='avg')
-#     return fig
 
 
 
