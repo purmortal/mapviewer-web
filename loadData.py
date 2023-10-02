@@ -1,4 +1,5 @@
 from astropy.io import fits
+from astropy.table import Table
 import numpy as np
 import os
 
@@ -118,6 +119,8 @@ class gistDataBase():
         # Read stellar kinematics
         if self.KIN == True:
             self.kinResults_Vorbin = fits.open(self.dirprefix+'_kin.fits')[1].data
+            self.kinResults_Vorbin_df = Table(self.kinResults_Vorbin).to_pandas()
+            self.kinResults_Vorbin_df['BIN_ID'] = self.kinResults_Vorbin_df.index
             self.kinResults = self.kinResults_Vorbin[idxConvertShortToLong]
             self.kinBestfit = fits.open(self.dirprefix+'_kin-bestfit.fits')[1].data.BESTFIT
             self.kinLambda  = fits.open(self.dirprefix+'_kin-bestfit.fits')[2].data.LOGLAM
@@ -127,6 +130,8 @@ class gistDataBase():
             # median_V_stellar   = np.nanmedian( self.kinResults.V[np.where( self.table.BIN_ID >= 0 )[0]] )
             # self.kinResults.V = self.kinResults.V - median_V_stellar
         else:
+            self.kinResults_Vorbin = None
+            self.kinResults_Vorbin_df = None
             self.kinResults = None
             self.kinBestfit = None
             self.kinLambda  = None
@@ -148,15 +153,21 @@ class gistDataBase():
             self.gasGoodpix  = fits.open(self.dirprefix+'_gas-bestfit_'+self.gasLevel+'.fits')[3].data.GOODPIX
 
             if self.gasLevel == 'BIN':
+                self.gasResults_Vorbin = gas
+                self.gasResults_Vorbin_df = Table(self.gasResults_Vorbin).to_pandas()
+                self.gasResults_Vorbin_df['BIN_ID'] = self.gasResults_Vorbin_df.index
                 self.gasResults = gas[idxConvertShortToLong]
             if self.gasLevel == 'SPAXEL':
+                self.gasResults_Vorbin = None
+                self.gasResults_Vorbin_df = None
                 self.gasResults = gas
-            self.gasResults_Vorbin = gas
 
             # for name in self.gasResults.names:
             #     if name.split('_')[-1] == 'V':
             #         self.gasResults[name] = self.gasResults[name] - median_V_stellar
         else:
+            self.gasResults_Vorbin = None
+            self.gasResults_Vorbin_df = None
             self.gasResults = None
             self.gasBestfit = None
             self.gasLambda  = None
@@ -166,8 +177,10 @@ class gistDataBase():
 
         # Read starFormatioHistories results
         if self.SFH == True:
-            self.sfhResults = fits.open(self.dirprefix+'_sfh.fits')[1].data
-            self.sfhResults = self.sfhResults[idxConvertShortToLong]
+            self.sfhResults_Vorbin = fits.open(self.dirprefix+'_sfh.fits')[1].data
+            self.sfhResults_Vorbin_df = Table(self.sfhResults_Vorbin).to_pandas()
+            self.sfhResults_Vorbin_df['BIN_ID'] = self.sfhResults_Vorbin_df.index
+            self.sfhResults = self.sfhResults_Vorbin[idxConvertShortToLong]
             self.sfhBestfit = fits.open(self.dirprefix+'_sfh-bestfit.fits')[1].data.BESTFIT
             self.sfhLambda  = fits.open(self.dirprefix+'_sfh-bestfit.fits')[2].data.LOGLAM
             self.sfhLambdaLIN  = np.exp(self.sfhLambda)
@@ -189,6 +202,8 @@ class gistDataBase():
             self.Weights = np.reshape(np.array(hdu_weights[1].data.WEIGHTS), (nbins,nAges,nMetal,nAlpha))
             self.Weights = np.transpose(self.Weights, (0,2,1,3))
         else:
+            self.sfhResults_Vorbin = None
+            self.sfhResults_Vorbin_df = None
             self.sfhResults = None
             self.sfhBestfit = None
             self.sfhLambda  = None
@@ -205,8 +220,13 @@ class gistDataBase():
                 ls = fits.open(self.dirprefix+'_ls_OrigRes.fits')[1].data
             elif self.LsLevel == "ADAPTED":
                 ls = fits.open(self.dirprefix+'_ls_AdapRes.fits')[1].data
+            self.lsResults_Vorbin = ls
+            self.lsResults_Vorbin_df = Table(self.lsResults_Vorbin).to_pandas()
+            self.lsResults_Vorbin_df['BIN_ID'] = self.lsResults_Vorbin_df.index
             self.lsResults = ls[idxConvertShortToLong]
         else:
+            self.lsResults_Vorbin = None
+            self.lsResults_Vorbin_df = None
             self.lsResults = None
 
 

@@ -71,15 +71,28 @@ def plotMap(self, module, maptype):
     elif maptype == 'ALPHA':   clabel="[Mg/Fe]"      ; cmap='plasma'
     else:                      clabel=maptype        ; cmap='plasma'
 
-    x = np.arange(xmin-self.pixelsize/2, xmax+self.pixelsize/2, self.pixelsize)[:npixels_x]
-    y = np.arange(ymin-self.pixelsize/2, ymax+self.pixelsize/2, self.pixelsize)[:npixels_y]
+    # x = np.arange(xmin-self.pixelsize/2, xmax+self.pixelsize/2, self.pixelsize)[:npixels_x]
+    # y = np.arange(ymin-self.pixelsize/2, ymax+self.pixelsize/2, self.pixelsize)[:npixels_y]
+    x = np.arange(xmin, xmax + self.pixelsize, self.pixelsize)[:npixels_x]
+    y = np.arange(ymin, ymax + self.pixelsize, self.pixelsize)[:npixels_y]
     fig = px.imshow(np.rot90(image)[::-1],
                     x=x,
                     y=y,
                     labels={'x': 'x [arcsec]', 'y':'y [arcsec]', 'color': clabel},
                     color_continuous_scale=cmap)
+
+    if hasattr(self, 'idxBinShort') == True:
+        fig.add_trace(go.Scatter(x=[self.table.XBIN[self.table['BIN_ID']==self.idxBinShort][0]], y=[self.table.YBIN[self.table['BIN_ID']==self.idxBinShort][0]], opacity=0.6,
+                                 mode='markers', name='VorBin', marker=dict(symbol='x', line_width=0.8, line_color='white', color='black', size=8)))
+    if hasattr(self, 'idxBinLong') == True:
+        if self.idxBinLong != None:
+            fig.add_trace(go.Scatter(x=[self.table.X[self.idxBinLong]], y=[self.table.Y[self.idxBinLong]], opacity=0.6,
+                                     mode='markers', name='SpaxelBin', marker=dict(symbol='circle', line_width=0.8, line_color='white', color='black', size=8)))
+
     fig.update_yaxes(autorange=True)
-    fig.update_layout(margin=dict(l=0, r=0, t=0, b=0))
+    fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), showlegend=False, hoverdistance=2)
+    # fig.update_layout(coloraxis_colorbar_x=-0.1)
+
     return fig
 
 
@@ -93,11 +106,11 @@ def plotSpectra(self):
     if self.KIN == True:
         fig = plotSpectraKIN(self, self.Spectra[self.idxBinShort], self.kinBestfit[self.idxBinShort], self.kinGoodpix)
         if 'V' in self.kinResults.names  and  'SIGMA' in self.kinResults.names  and  'H3' in self.kinResults.names  and  'H4' in self.kinResults.names:
-            fig.update_layout(title={'text': "Stellar kinematics: V={:.1f}km/s, SIGMA={:.1f}km/s, H3={:.2f}, H4={:.2f}".format(self.kinResults.V[self.idxBinLong], self.kinResults.SIGMA[self.idxBinLong], self.kinResults.H3[self.idxBinLong], self.kinResults.H4[self.idxBinLong]),
+            fig.update_layout(title={'text': "Stellar kinematics: V={:.1f}km/s, SIGMA={:.1f}km/s, H3={:.2f}, H4={:.2f}".format(self.kinResults_Vorbin.V[self.idxBinShort], self.kinResults_Vorbin.SIGMA[self.idxBinShort], self.kinResults_Vorbin.H3[self.idxBinShort], self.kinResults_Vorbin.H4[self.idxBinShort]),
                                      'x': 0.5, 'y':0.95,
                                      'xanchor':'center', 'yanchor':'top'})
         elif 'V' in self.kinResults.names  and  'SIGMA' in self.kinResults.names:
-            fig.update_layout(title={'text': "Stellar kinematics: V={:.1f}km/s, SIGMA={:.1f}km/s".format(self.kinResults.V[self.idxBinLong], self.kinResults.SIGMA[self.idxBinLong]),
+            fig.update_layout(title={'text': "Stellar kinematics: V={:.1f}km/s, SIGMA={:.1f}km/s".format(self.kinResults_Vorbin.V[self.idxBinShort], self.kinResults_Vorbin.SIGMA[self.idxBinShort]),
                                      'x': 0.5, 'y':0.95,
                                      'xanchor':'center', 'yanchor':'top'})
         figs.append(fig)
@@ -111,7 +124,7 @@ def plotSpectra(self):
             # self.axes[2].set_title("SPAXEL_ID = {:d}".format(self.self.idxBinLong), loc='right')
         try:
             line='0' # need to modify for the future
-            fig.update_layout(title={'text': "Emission-line kinematics: v={:.1f}km/s, sigma={:.1f}km/s".format(self.gasResults[line+'_V'][self.idxBinLong], self.gasResults[line+'_S'][self.idxBinLong]),
+            fig.update_layout(title={'text': "Emission-line kinematics: v={:.1f}km/s, sigma={:.1f}km/s".format(self.gasResults_Vorbin[line+'_V'][self.idxBinShort], self.gasResults_Vorbin[line+'_S'][self.idxBinShort]),
                                      'x': 0.5, 'y':0.95,
                                      'xanchor':'center', 'yanchor':'top'})
         except:
@@ -123,7 +136,7 @@ def plotSpectra(self):
     # Plot starFormationHistories results
     if self.SFH == True:
         fig = plotSpectraSFH(self, self.Spectra[self.idxBinShort], self.sfhBestfit[self.idxBinShort], self.sfhGoodpix)
-        fig.update_layout(title={'text': "Stellar populations: Age={:.2f} Gyr, [M/H]={:.2f}, [alpha/Fe]={:.2f}".format(self.sfhResults['AGE'][self.idxBinLong], self.sfhResults['METAL'][self.idxBinLong], self.sfhResults['ALPHA'][self.idxBinLong]),
+        fig.update_layout(title={'text': "Stellar populations: Age={:.2f} Gyr, [M/H]={:.2f}, [alpha/Fe]={:.2f}".format(self.sfhResults_Vorbin['AGE'][self.idxBinShort], self.sfhResults_Vorbin['METAL'][self.idxBinShort], self.sfhResults_Vorbin['ALPHA'][self.idxBinShort]),
                                  'x': 0.5, 'y':0.95,
                                  'xanchor':'center', 'yanchor':'top'})
         figs.append(fig)
@@ -177,6 +190,7 @@ def plotSpectraKIN(self, spectra, bestfit, goodpix):
     fig.update_layout(xaxis=dict(range=[self.LambdaLIN[idxLam][0], self.LambdaLIN[idxLam][-1]]),
                       xaxis_title='Wavelength (Angstrom)', yaxis_title='Flux', showlegend=False,
                       margin=dict(l=3, r=3, t=35, b=3))
+    fig.update_layout(hovermode="x unified")
 
     return fig
 
@@ -240,6 +254,7 @@ def plotSpectraGAS(self, spectra, bestfit, goodpix):
     fig.update_layout(xaxis=dict(range=[self.LambdaLIN[idxLam][0], self.LambdaLIN[idxLam][-1]]),
                       xaxis_title='Wavelength (Angstrom)', yaxis_title='Flux', showlegend=False,
                       margin=dict(l=3, r=3, t=35, b=3))
+    fig.update_layout(hovermode="x unified")
 
     # self.axes[panel].set_xlim([self.Lambda[idxLam][0], self.Lambda[idxLam][-1]])
     # self.axes[panel].set_ylabel('Flux')
@@ -281,9 +296,9 @@ def plotSpectraSFH(self, spectra, bestfit, goodpix):
         # self.axes[panel].plot(self.gasLambda[idxLamGand], self.EmissionSubtractedSpectraBIN[self.self.idxBinShort,idxLamGand],                    color='orange',    linewidth=2)
         # self.axes[panel].plot(self.gasLambda[idxLamGand], self.EmissionSubtractedSpectraBIN[self.self.idxBinShort,idxLamGand] - bestfit + offset, color='limegreen', linewidth=2)
         fig.add_trace(go.Scatter(x=self.gasLambdaLIN[idxLamGand], y=self.EmissionSubtractedSpectraBIN[self.idxBinShort,idxLamGand],
-                     name=None, mode='lines', line=dict(color='orange',     width=2)))
+                     name='EmissionSub', mode='lines', line=dict(color='orange',     width=2)))
         fig.add_trace(go.Scatter(x=self.gasLambdaLIN[idxLamGand], y=self.EmissionSubtractedSpectraBIN[self.idxBinShort,idxLamGand] - bestfit + offset,
-                     name=None, mode='lines', line=dict(color='limegreen',     width=2)))
+                     name='Residual', mode='lines', line=dict(color='limegreen',     width=2)))
     except:
         pass
 
@@ -312,6 +327,7 @@ def plotSpectraSFH(self, spectra, bestfit, goodpix):
     fig.update_layout(xaxis=dict(range=[self.LambdaLIN[idxLam][0], self.LambdaLIN[idxLam][-1]]),
                       xaxis_title='Wavelength (Angstrom)', yaxis_title='Flux', showlegend=False,
                       margin=dict(l=3, r=3, t=35, b=3))
+    fig.update_layout(hovermode="x unified")
     # ticks = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format( np.exp(x) ))
     # self.axes[panel].xaxis.set_major_formatter(ticks)
     return fig
@@ -332,10 +348,12 @@ def plotSFH(self):
                       xaxis_title='Age [Gyr]',
                       yaxis_title='#', showlegend=False,
                       margin=dict(l=3, r=3, t=35, b=3))
-    fig.update_layout(title={'text': "Star Formation History; Mean Age: {:.2f}".format(self.sfhResults['AGE'][self.idxBinLong])+" Gyr",
+    fig.update_layout(title={'text': "Star Formation History; Mean Age: {:.2f}".format(self.sfhResults_Vorbin['AGE'][self.idxBinShort])+" Gyr",
                              'x': 0.5, 'y':0.95,
                              'xanchor':'center', 'yanchor':'top'})
+    fig.update_layout(hovermode="x")
     return fig
+
 
 def plotMDF(self):
     fig1 = go.Figure(data=go.Heatmap(x=self.age,
