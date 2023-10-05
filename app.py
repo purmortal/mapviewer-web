@@ -16,12 +16,59 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
-menus = ['TABLE', 'MASK', 'KIN', 'GAS', 'SFH', 'LINE_STRENGTH']
+def create_main_table(database, value):
+    if value in ['table', 'Mask']:
+        df_module = Table(getattr(database, value)).to_pandas()
+
+    else:
+        df_module = getattr(database, value+'_Vorbin_df')
+
+    columnDefs = []
+    if 'ID' in df_module.columns:
+        columnDefs += [{"field": "ID", "pinned": "left", "lockPinned": True}]
+    if 'BIN_ID' in df_module.columns:
+        columnDefs += [{"field": "BIN_ID", "pinned": "left", "lockPinned": True}]
+    columnDefs += [{"field": i, "valueFormatter": {"function": "d3.format(',.3f')(params.value)"}}
+                   for i in df_module.columns if i != 'BIN_ID' and i != 'ID']
+        # columnDefs=[{"field": i, "valueFormatter": {"function": "d3.format(',.3f')(params.value)"}} for i in df_module.columns]
+    return  dag.AgGrid(id='main-table',
+                       rowData=df_module.to_dict('records'),
+                       columnDefs=columnDefs,
+                       columnSize="sizeToFit",
+                       columnSizeOptions={'defaultMinWidth': 100, 'defaultMaxWidth': 200},
+                       defaultColDef={"resizable": True, "sortable": True, "filter": True},
+                       className="ag-theme-balham",
+                       dashGridOptions={"rowSelection":"single"},
+                       style={'height': '55vh'},
+                       )
+
+def create_main_map(database):
+    return dcc.Graph(id='main-map',
+                 figure=plotMap(database, database.module, database.maptype),
+                 style={'height': '55vh'},
+                 )
+
+def update_dashboard(database):
+    # print({"styleConditions": [{"condition": "params.rowIndex === " + str(database.idxBinShort), "style": {"backgroundColor": "red"}}]})
+    return \
+        [ create_main_map(database) ], \
+        [ dcc.Graph(figure=x, style={'height': '35vh'}) for x in plotSpectra(database) ], \
+        [ dcc.Graph(figure=plotSFH(database), style={'height': '35vh'} ) ] + [ dcc.Graph( figure=x, style={'height': '38vh'} ) for x in plotMDF(database) ]
+
+
+
+modules = ['TABLE', 'MASK', 'KIN', 'GAS', 'SFH', 'LS']
+results = ['table', 'Mask', 'kinResults', 'gasResults', 'sfhResults', 'lsResults']
+
 # Incorporate data
-# path_gist_run = '/home/zwan0382/Documents/projects/mapviewer-web/NGC0000Example'
-path_gist_run = '/home/zwan0382/Documents/projects/mapviewer-web/resultsRevisedREr5'
+path_gist_run = '/home/zwan0382/Documents/projects/mapviewer-web/NGC0000Example'
+# path_gist_run = '/home/zwan0382/Documents/projects/mapviewer-web/resultsRevisedREr5'
 database = gistDataBase(path_gist_run)
 database.loadData()
+database.module = "TABLE"
+database.maptype = "FLUX"
+print('initial', database.module)
+print('initial', database.maptype)
 # df = pd.read_csv("https://raw.githubusercontent.com/plotly/datasets/master/gapminder2007.csv")
 
 
@@ -39,26 +86,26 @@ app.layout = dmc.Container([
                 "Load from database",
                 leftIcon=DashIconify(icon="fluent:database-plug-connected-20-filled"),
                 id="loading-button",
-                style={"marginTop": 8, "marginBottom": 8}
+                style={"marginTop": 12, "marginBottom": 12}
             ),
             dmc.SegmentedControl(
-                    id="segmented-properties",
-                    data=[
-                        {"value": menu_i, "label": menu_i}
-                        for menu_i in menus
-                    ],
-                    style={"marginTop": 8, "marginBottom": 8},
+                    id="module-select",
+                    value=results[modules.index(database.module)],
+                    # value='table',
+                    data=[{"value": 'table', "label": 'TABLE'}] +
+                         [{"value": results[i], "label": modules[i]}
+                          for i in range(1, len(modules)) if getattr(database, modules[i])],
+                    style={"marginTop": 12, "marginBottom": 12},
                 ),
             dmc.Select(
                 placeholder="choose a parameter",
                 id="parameter-select",
-                data=[
-                    {"value": "react", "label": "React"},
-                    {"value": "ng", "label": "Angular"},
-                    {"value": "svelte", "label": "Svelte"},
-                    {"value": "vue", "label": "Vue"},
-                ],
-                style={"width": 200, "marginTop": 8, "marginBottom": 8},
+                data=[{"value": parameter_i, "label": parameter_i}
+                      for parameter_i in getattr(database, results[modules.index(database.module)]).names],
+                value=database.maptype,
+                # value='FLUX',
+                style={"width": 200, "marginTop": 12, "marginBottom": 12},
+                maxDropdownHeight=500,
             )
         ],
         align='inherit',
@@ -100,30 +147,15 @@ app.layout = dmc.Container([
     dmc.Grid(
         children=[
             dmc.Col(
-                children=[
-                    dcc.Graph(id='main-map',
-                              figure=plotMap(database, 'TABLE', 'BIN_ID'),
-                              style={'height': '55vh'},
-                              ),
-                ],
+                id='child-main-map',
+                children=[create_main_map(database)],
                 span=6,
             ),
             dmc.Col(
                 id='child-main-table',
                 children=[
-                    dag.AgGrid(
-                        id='main-table',
-                        rowData=database.kinResults_Vorbin_df.to_dict('records'),
-                        columnDefs=[{"field": "BIN_ID", "pinned": "left", "lockPinned": True}] +
-                                   [{"field": i, "valueFormatter": {"function": "d3.format(',.3f')(params.value)"}} for i in database.kinResults_Vorbin_df.columns if i != 'BIN_ID'],
-                        columnSize="sizeToFit",
-                        columnSizeOptions={'defaultMinWidth': 100, 'defaultMaxWidth': 200},
-                        defaultColDef={"resizable": True, "sortable": True, "filter": True},
-                        className="ag-theme-balham",
-                        dashGridOptions={"rowSelection":"single"},
-                        style={'height': '55vh'},
-                        ),
-                    html.Div(id="quickclick-output"),
+                    create_main_table(database, results[modules.index(database.module)]),
+                    # html.Div(id="quickclick-output"),
                 ],
                 span=6,),
         ],
@@ -176,16 +208,38 @@ app.layout = dmc.Container([
 #         [ dcc.Graph(figure=plotSFH(database), style={'height': '35vh'} ) ] + [ dcc.Graph( figure=x, style={'height': '38vh'} ) for x in plotMDF(database) ]
 
 
-def update_dashboard(database):
-    # print({"styleConditions": [{"condition": "params.rowIndex === " + str(database.idxBinShort), "style": {"backgroundColor": "red"}}]})
-    return \
-        plotMap(database, 'TABLE', 'BIN_ID'), \
-        [ dcc.Graph(figure=x, style={'height': '35vh'}) for x in plotSpectra(database) ], \
-        [ dcc.Graph(figure=plotSFH(database), style={'height': '35vh'} ) ] + [ dcc.Graph( figure=x, style={'height': '38vh'} ) for x in plotMDF(database) ]
+
+@callback(
+    Output('child-main-table', 'children'),
+    Output("parameter-select", "data"),
+    Output("parameter-select", "value"),
+    Input("module-select", "value"),
+    prevent_initial_call=True
+)
+def select_module(value):
+    print('select_module', value)
+    names = getattr(database, value).names
+    database.module = modules[results.index(value)]
+    return [create_main_table(database, value)], [{"value": parameter_i, "label": parameter_i} for parameter_i in names], names[0]
 
 
 @callback(
-    Output('main-map', 'figure'),
+    Output('child-main-map', 'children'),
+    Input("parameter-select", "value"),
+    # prevent_initial_call=True
+)
+def select_parameter(value):
+    print(['select_parameter', value])
+    if value == None:
+        raise PreventUpdate
+    database.maptype = value
+    print(['database', database.module, database.maptype])
+    return [create_main_map(database)]
+
+
+
+@callback(
+    Output('child-main-map', 'children', allow_duplicate=True),
     # Output('child-main-table', 'children'),
     Output('plot-spec-map', 'children'),
     Output('plot-mfd-map', 'children'),
@@ -196,11 +250,19 @@ def update_dashboard(database):
 def display_click_vorbin(clickData, cellClicked):
     triggered_id = ctx.triggered_id
     if triggered_id == 'main-map':
-        database.idxBinLong, database.idxBinShort = getVoronoiBin(database, clickData['points'][0]['x'], clickData['points'][0]['y'])
-        return update_dashboard(database)
+        if clickData == None:
+            raise PreventUpdate
+        else:
+            database.idxBinLong, database.idxBinShort = getVoronoiBin(database, clickData['points'][0]['x'], clickData['points'][0]['y'])
+            print(database.idxBinLong, database.idxBinShort)
+            return update_dashboard(database)
     elif triggered_id == 'main-table':
-        database.idxBinLong, database.idxBinShort = None, int(cellClicked['rowId'])
-        return update_dashboard(database)
+        if cellClicked == None:
+            raise PreventUpdate
+        else:
+            database.idxBinLong, database.idxBinShort = None, int(cellClicked['rowId'])
+            print(database.idxBinLong, database.idxBinShort)
+            return update_dashboard(database)
 
 
 

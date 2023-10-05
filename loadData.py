@@ -73,16 +73,16 @@ class gistDataBase():
         self.SFH           = os.path.isfile(self.dirprefix+'_sfh.fits')
 
         if os.path.isfile(self.dirprefix+'_ls_OrigRes.fits') == False  and  os.path.isfile(self.dirprefix+'_ls_AdapRes.fits') == False:
-            self.LINE_STRENGTH = False
+            self.LS = False
             self.LsLevelAvailable = []
         if os.path.isfile(self.dirprefix+'_ls_OrigRes.fits') == True  and  os.path.isfile(self.dirprefix+'_ls_AdapRes.fits') == False:
-            self.LINE_STRENGTH = True
+            self.LS = True
             self.LsLevelAvailable = ['ORIGINAL']
         if os.path.isfile(self.dirprefix+'_ls_OrigRes.fits') == False  and  os.path.isfile(self.dirprefix+'_ls_AdapRes.fits') == True:
-            self.LINE_STRENGTH = True
+            self.LS = True
             self.LsLevelAvailable = ['ADAPTED']
         if os.path.isfile(self.dirprefix+'_ls_OrigRes.fits') == True  and  os.path.isfile(self.dirprefix+'_ls_AdapRes.fits') == True:
-            self.LINE_STRENGTH = True
+            self.LS = True
             self.LsLevelAvailable = ['ORIGINAL', 'ADAPTED']
 
         if len( self.LsLevelAvailable ) == 1:
@@ -215,7 +215,7 @@ class gistDataBase():
 
 
         # Read lineStrengths results
-        if self.LINE_STRENGTH == True:
+        if self.LS == True:
             if self.LsLevel == "ORIGINAL":
                 ls = fits.open(self.dirprefix+'_ls_OrigRes.fits')[1].data
             elif self.LsLevel == "ADAPTED":
