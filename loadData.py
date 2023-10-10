@@ -9,18 +9,12 @@ class gistDataBase():
     """ Load all available data to make it accessible for plotting. """
 
 
-    def __init__(self, path_gist_run):
+    def __init__(self):
 
         # Some default settings
-        self.restrict2voronoi = 2
-        self.markercolor      = 'r'
-        self.gasLevelSelected = 'BIN'
-        self.LsLevelSelected  = 'ADAPTED'
-        self.AoNThreshold     = 3
-        self.forAleksandra    = False
+        self.initialization()
 
         # Setup the rest
-        self.dialogRunSelection(path_gist_run)
 
 
     def dialogRunSelection(self, tmp0):
@@ -40,7 +34,9 @@ class gistDataBase():
             # self.createWindow()
 
 
-    def loadData(self):
+    def loadData(self, path_gist_run):
+        self.dialogRunSelection(path_gist_run)
+
 
        # Check if *_table.fits is available. This file is required!
         # if os.path.isfile(self.dirprefix+'_table.fits') == False:
@@ -161,6 +157,7 @@ class gistDataBase():
                 self.gasResults_Vorbin = None
                 self.gasResults_Vorbin_df = None
                 self.gasResults = gas
+            self.gasResults_Vorbin_df.columns = self.gasResults_Vorbin_df.columns.str.replace(".", "_")
 
             # for name in self.gasResults.names:
             #     if name.split('_')[-1] == 'V':
@@ -230,3 +227,18 @@ class gistDataBase():
             self.lsResults = None
 
 
+    def reset(self):
+        keys = list(self.__dict__.keys())
+        if len(keys) > 0:
+            for key in keys:
+                delattr(self, key)
+
+        self.initialization()
+
+    def initialization(self):
+        self.restrict2voronoi = 2
+        self.markercolor      = 'r'
+        self.gasLevelSelected = 'BIN'
+        self.LsLevelSelected  = 'ADAPTED'
+        self.AoNThreshold     = 3
+        self.forAleksandra    = False
