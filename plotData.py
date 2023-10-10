@@ -93,6 +93,8 @@ def plotMap(self, module, maptype):
     fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), showlegend=False, hoverdistance=2)
     # fig.update_layout(coloraxis_colorbar_x=-0.1)
 
+    self.plotMap = fig
+
     return fig
 
 

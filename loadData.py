@@ -5,6 +5,16 @@ import os
 
 
 
+def table2pandas(table):
+    df = table.to_pandas()
+    # df['BIN_ID'] = df.index
+    df.insert(0, 'BIN_ID', df.index)
+    for col in df.columns:
+        if df[col].dtype == 'float64':
+            df[col] = df[col].round(3)
+    return df
+
+
 class gistDataBase():
     """ Load all available data to make it accessible for plotting. """
 
@@ -115,8 +125,9 @@ class gistDataBase():
         # Read stellar kinematics
         if self.KIN == True:
             self.kinResults_Vorbin = fits.open(self.dirprefix+'_kin.fits')[1].data
-            self.kinResults_Vorbin_df = Table(self.kinResults_Vorbin).to_pandas()
-            self.kinResults_Vorbin_df['BIN_ID'] = self.kinResults_Vorbin_df.index
+            # self.kinResults_Vorbin_df = Table(self.kinResults_Vorbin).to_pandas()
+            # self.kinResults_Vorbin_df['BIN_ID'] = self.kinResults_Vorbin_df.index
+            self.kinResults_Vorbin_df = table2pandas(Table(self.kinResults_Vorbin))
             self.kinResults = self.kinResults_Vorbin[idxConvertShortToLong]
             self.kinBestfit = fits.open(self.dirprefix+'_kin-bestfit.fits')[1].data.BESTFIT
             self.kinLambda  = fits.open(self.dirprefix+'_kin-bestfit.fits')[2].data.LOGLAM
@@ -150,8 +161,9 @@ class gistDataBase():
 
             if self.gasLevel == 'BIN':
                 self.gasResults_Vorbin = gas
-                self.gasResults_Vorbin_df = Table(self.gasResults_Vorbin).to_pandas()
-                self.gasResults_Vorbin_df['BIN_ID'] = self.gasResults_Vorbin_df.index
+                # self.gasResults_Vorbin_df = Table(self.gasResults_Vorbin).to_pandas()
+                # self.gasResults_Vorbin_df['BIN_ID'] = self.gasResults_Vorbin_df.index
+                self.gasResults_Vorbin_df = table2pandas(Table(self.gasResults_Vorbin))
                 self.gasResults = gas[idxConvertShortToLong]
             if self.gasLevel == 'SPAXEL':
                 self.gasResults_Vorbin = None
@@ -175,8 +187,9 @@ class gistDataBase():
         # Read starFormatioHistories results
         if self.SFH == True:
             self.sfhResults_Vorbin = fits.open(self.dirprefix+'_sfh.fits')[1].data
-            self.sfhResults_Vorbin_df = Table(self.sfhResults_Vorbin).to_pandas()
-            self.sfhResults_Vorbin_df['BIN_ID'] = self.sfhResults_Vorbin_df.index
+            # self.sfhResults_Vorbin_df = Table(self.sfhResults_Vorbin).to_pandas()
+            # self.sfhResults_Vorbin_df['BIN_ID'] = self.sfhResults_Vorbin_df.index
+            self.sfhResults_Vorbin_df = table2pandas(Table(self.sfhResults_Vorbin))
             self.sfhResults = self.sfhResults_Vorbin[idxConvertShortToLong]
             self.sfhBestfit = fits.open(self.dirprefix+'_sfh-bestfit.fits')[1].data.BESTFIT
             self.sfhLambda  = fits.open(self.dirprefix+'_sfh-bestfit.fits')[2].data.LOGLAM
@@ -218,8 +231,9 @@ class gistDataBase():
             elif self.LsLevel == "ADAPTED":
                 ls = fits.open(self.dirprefix+'_ls_AdapRes.fits')[1].data
             self.lsResults_Vorbin = ls
-            self.lsResults_Vorbin_df = Table(self.lsResults_Vorbin).to_pandas()
-            self.lsResults_Vorbin_df['BIN_ID'] = self.lsResults_Vorbin_df.index
+            self.lsResults_Vorbin_df = table2pandas(Table(self.lsResults_Vorbin))
+            # self.lsResults_Vorbin_df = Table(self.lsResults_Vorbin).to_pandas()
+            # self.lsResults_Vorbin_df['BIN_ID'] = self.lsResults_Vorbin_df.index
             self.lsResults = ls[idxConvertShortToLong]
         else:
             self.lsResults_Vorbin = None
@@ -242,3 +256,5 @@ class gistDataBase():
         self.LsLevelSelected  = 'ADAPTED'
         self.AoNThreshold     = 3
         self.forAleksandra    = False
+
+
