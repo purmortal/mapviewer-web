@@ -54,22 +54,26 @@ app = Dash(__name__, external_stylesheets=external_stylesheets)
 def create_property_groups(database):
     print("Function call create_property_groups")
     if hasattr(database, "module") == False:
-        database.module = "KIN"
+        if database.KIN == True:
+            database.module = "KIN"
+        else:
+            database.module = "TABLE"
     return [
             dmc.SegmentedControl(
                     id="module-select",
                     value=module_table_names[module_names.index(database.module)],
+                    # value=None,
                     data=[{"value": "table", "label": "TABLE"}] +
                          [{"value": module_table_names[i], "label": module_names[i]}
                           for i in range(1, len(module_names)) if getattr(database, module_names[i])],
-                    style={"marginTop": 12, "marginBottom": 12},
+                    style={"width": "20vw", "marginTop": 12, "marginBottom": 12},
                 ),
             dmc.Select(
                 placeholder="choose a parameter",
                 id="parameter-select",
                 data=[{"value": parameter_i, "label": parameter_i}
                       for parameter_i in getattr(database, module_table_names[module_names.index(database.module)]).names],
-                style={"width": 200, "marginTop": 12, "marginBottom": 12},
+                style={"width": '12vw', "marginTop": 12, "marginBottom": 12},
                 maxDropdownHeight=500,
             )
         ]
@@ -169,15 +173,15 @@ app.layout = dmc.Container([
                     dmc.Group(
                         children=[
                             dmc.TextInput(
-                                style={"width": "60vh"},
+                                style={"width": "35vw", "marginTop": 12, "marginBottom": 12},
                                 placeholder="please input your GIST directory path",
                                 id="data-directory-ptah",
                             ),
                             dmc.Button(
                                 id="load-data",
-                                children="Load from database",
+                                children="Load Database",
                                 leftIcon=DashIconify(icon="fluent:database-plug-connected-20-filled"),
-                                style={"marginTop": 12, "marginBottom": 12}
+                                style={"width": "10vw", "marginTop": 12, "marginBottom": 12}
                             ),
                         ],
                     ),
@@ -191,11 +195,11 @@ app.layout = dmc.Container([
                             dmc.SegmentedControl(
                                 id="module-select",
                                 data = [{"value": "tem", "label": "No data loaded"}],
-                                style={"marginTop": 12, "marginBottom": 12},
+                                style={"width": "20vw", "marginTop": 12, "marginBottom": 12},
                             ),
                             dmc.Select(
                                 id="parameter-select",
-                                style={"width": 200, "marginTop": 12, "marginBottom": 12},
+                                style={"width": '12vw', "marginTop": 12, "marginBottom": 12},
                                 maxDropdownHeight=500,
                             ),
                         ],

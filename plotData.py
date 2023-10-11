@@ -65,10 +65,11 @@ def plotMap(self, module, maptype):
     # Define special labels
     if   maptype == 'FLUX':    clabel="log( Flux )"  ; cmap='plasma'
     elif maptype == 'V':       clabel="v [km/s]"     ; cmap='RdBu'
-    elif maptype == 'SIGMA':   clabel="sigma [km/s]" ; cmap='RdBu'
+    elif maptype == 'SIGMA':   clabel="sigma [km/s]" ; cmap='plasma'
     elif maptype == 'AGE':     clabel="Age [Gyr]"    ; cmap='plasma'
     elif maptype == 'METALS':  clabel="[M/H]"        ; cmap='plasma'
     elif maptype == 'ALPHA':   clabel="[Mg/Fe]"      ; cmap='plasma'
+    elif maptype == 'BIN_ID':  clabel="[Mg/Fe]"      ; cmap='plasma'
     else:                      clabel=maptype        ; cmap='plasma'
 
     # x = np.arange(xmin-self.pixelsize/2, xmax+self.pixelsize/2, self.pixelsize)[:npixels_x]
@@ -84,12 +85,21 @@ def plotMap(self, module, maptype):
     if hasattr(self, 'idxBinShort') == True:
         if self.idxBinShort >= 0:
             fig.add_trace(go.Scatter(x=[self.table.XBIN[self.table['BIN_ID']==self.idxBinShort][0]], y=[self.table.YBIN[self.table['BIN_ID']==self.idxBinShort][0]], opacity=0.6,
-                                     mode='markers', name='VorBin', marker=dict(symbol='x', line_width=0.8, line_color='white', color='black', size=8)))
+                                     mode='markers', name='VorBin', marker=dict(symbol='x', line_width=1.5, line_color='white', color='black', size=8)))
     if hasattr(self, 'idxBinLong') == True:
         # if self.idxBinLong != None:
             fig.add_trace(go.Scatter(x=[self.table.X[self.idxBinLong]], y=[self.table.Y[self.idxBinLong]], opacity=0.6,
-                                     mode='markers', name='SpaxelBin', marker=dict(symbol='circle', line_width=0.8, line_color='white', color='black', size=8)))
+                                     mode='markers', name='SpaxelBin', marker=dict(symbol='circle', line_width=1.5, line_color='white', color='black', size=8)))
 
+
+    # print(np.nanpercentile(image, [10, 95]))
+    if module not in ['TABLE', 'MASK']:
+        fig.update_coloraxes(cmin=np.nanpercentile(image, 5), cmax=np.nanpercentile(image, 95))
+    if module == 'MASK':
+        fig.update_coloraxes(cmin=0, cmax=1)
+    if maptype == 'V':
+        absmax = np.nanpercentile(np.abs(image), 95)
+        fig.update_coloraxes(cmin=-absmax, cmax=absmax, cmid=0)
     fig.update_yaxes(autorange=True)
     fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), showlegend=False, hoverdistance=2)
     # fig.update_layout(coloraxis_colorbar_x=-0.1)
