@@ -22,3 +22,9 @@ def getVoronoiBin(self, click_x, click_y):
     idxBinShort = np.abs(self.table.BIN_ID[final_idx]) # In Bin arrays
     return idxBinLong, idxBinShort
 
+def remove_idxBin(self):
+    if hasattr(self, "idxBinLong"):
+        delattr(self, "idxBinLong")
+    if hasattr(self, "idxBinShort"):
+        delattr(self, "idxBinShort")
+

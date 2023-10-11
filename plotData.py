@@ -82,10 +82,11 @@ def plotMap(self, module, maptype):
                     color_continuous_scale=cmap)
 
     if hasattr(self, 'idxBinShort') == True:
-        fig.add_trace(go.Scatter(x=[self.table.XBIN[self.table['BIN_ID']==self.idxBinShort][0]], y=[self.table.YBIN[self.table['BIN_ID']==self.idxBinShort][0]], opacity=0.6,
-                                 mode='markers', name='VorBin', marker=dict(symbol='x', line_width=0.8, line_color='white', color='black', size=8)))
+        if self.idxBinShort >= 0:
+            fig.add_trace(go.Scatter(x=[self.table.XBIN[self.table['BIN_ID']==self.idxBinShort][0]], y=[self.table.YBIN[self.table['BIN_ID']==self.idxBinShort][0]], opacity=0.6,
+                                     mode='markers', name='VorBin', marker=dict(symbol='x', line_width=0.8, line_color='white', color='black', size=8)))
     if hasattr(self, 'idxBinLong') == True:
-        if self.idxBinLong != None:
+        # if self.idxBinLong != None:
             fig.add_trace(go.Scatter(x=[self.table.X[self.idxBinLong]], y=[self.table.Y[self.idxBinLong]], opacity=0.6,
                                      mode='markers', name='SpaxelBin', marker=dict(symbol='circle', line_width=0.8, line_color='white', color='black', size=8)))
 
@@ -93,9 +94,9 @@ def plotMap(self, module, maptype):
     fig.update_layout(margin=dict(l=0, r=0, t=0, b=0), showlegend=False, hoverdistance=2)
     # fig.update_layout(coloraxis_colorbar_x=-0.1)
 
-    self.plotMap = fig
+    self.fig_plotMap = fig
 
-    return fig
+    return self.fig_plotMap
 
 
 # ============================================================================ #

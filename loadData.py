@@ -5,10 +5,11 @@ import os
 
 
 
-def table2pandas(table):
+def table2pandas(table, addid=True):
     df = table.to_pandas()
     # df['BIN_ID'] = df.index
-    df.insert(0, 'BIN_ID', df.index)
+    if addid:
+        df.insert(0, 'BIN_ID', df.index)
     for col in df.columns:
         if df[col].dtype == 'float64':
             df[col] = df[col].round(3)
@@ -104,6 +105,7 @@ class gistDataBase():
 
         # Read table and get transformation array
         self.table     = fits.open(self.dirprefix+'_table.fits')[1].data
+        self.table_df  = table2pandas(Table(self.table), addid=False)
         self.pixelsize = fits.open(self.dirprefix+'_table.fits')[0].header['PIXSIZE']
         _, idxConvertShortToLong = np.unique( np.abs(self.table.BIN_ID), return_inverse=True )
 
@@ -120,6 +122,7 @@ class gistDataBase():
         # Read mask
         if self.MASK == True:
             self.Mask = fits.open(self.dirprefix+'_mask.fits')[1].data
+            self.Mask_df  = table2pandas(Table(self.Mask), addid=False)
 
 
         # Read stellar kinematics

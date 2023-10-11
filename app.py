@@ -7,6 +7,7 @@ import json
 from dash import Dash, html, dash_table, dcc, callback, Output, Input, ctx, State, no_update
 import pandas as pd
 import time
+from time import perf_counter as clock
 from astropy.table import Table
 # import plotly.express as px
 import dash_mantine_components as dmc
@@ -78,48 +79,56 @@ def create_property_groups(database):
             )
         ]
 
+# def update_main_table_columnDefs(database):
+#     return [{"field": i} for i in database.current_df.columns]
 def create_main_table(database, value):
     print("Function call create_main_table")
     if value in ["table", "Mask"]:
-        database.current_df = Table(getattr(database, value)).to_pandas()
+        # database.current_df = Table(getattr(database, value)).to_pandas()
+        database.current_df = getattr(database, value+"_df")
 
     else:
         database.current_df = getattr(database, value+"_Vorbin_df")
 
     columnDefs = []
-    if "ID" in database.current_df.columns:
-        columnDefs += [{"field": "ID", "pinned": "left", "lockPinned": True}]
-    if "BIN_ID" in database.current_df.columns:
-        columnDefs += [{"field": "BIN_ID", "pinned": "left", "lockPinned": True}]
+    # if "ID" in database.current_df.columns:
+    #     columnDefs += [{"field": "ID", "pinned": "left", "lockPinned": True}]
+    # if "BIN_ID" in database.current_df.columns:
+    #     columnDefs += [{"field": "BIN_ID", "pinned": "left", "lockPinned": True}]
     # columnDefs += [{"field": i, "valueFormatter": {"function": "d3.format('.3f')(params.value)"}}
     #                for i in database.current_df.columns if i != "BIN_ID" and i != "ID"]
-    columnDefs += [{"field": i}
-                   for i in database.current_df.columns if i != "BIN_ID" and i != "ID"]
-    # columnDefs=[{"field": i for i in database.current_df.columns]
-    return  dag.AgGrid(
-        id="main-table",
-        rowData=database.current_df.to_dict("records"),
-        columnDefs=columnDefs,
-        # columnSize="autoSize",
-        columnSize="sizeToFit",
-        # scrollTo={"rowPosition":"bottom"},
-        columnSizeOptions={"defaultMinWidth": 100, "defaultMaxWidth": 150},
-        defaultColDef={"resizable": True, "sortable": True},
-        rowModelType="infinite",
-        className="ag-theme-balham",
-        dashGridOptions={
-           "rowBuffer": 0,
-           "maxBlocksInCache": 1,
-           # "cacheBlockSize": 100,
-           # "cacheOverflowSize": 2,
-           # "maxConcurrentDatasourceRequests": 1,
-           "infiniteInitialRowCount": 40,
-           "rowSelection":"single",
-            "pagination": True,
-            "paginationAutoPageSize": True
-        },
-        style={"height": "55vh"},
-    )
+    # columnDefs += [{"field": i}
+    #                for i in database.current_df.columns if i != "BIN_ID" and i != "ID"]
+    print(database.current_df.columns)
+    columnDefs=[{"field": i} for i in database.current_df.columns]
+    return columnDefs
+    # return  dag.AgGrid(
+    #     id="main-table",
+    #     rowData=database.current_df.to_dict("records"),
+    #     columnDefs=columnDefs,
+    #     # columnSize="autoSize",
+    #     columnSize="sizeToFit",
+    #     # scrollTo={"rowPosition":"bottom"},
+    #     columnSizeOptions={
+    #         "defaultMinWidth": 110,
+    #         # "defaultMaxWidth": 150
+    #     },
+    #     defaultColDef={"resizable": True, "sortable": True},
+    #     rowModelType="infinite",
+    #     className="ag-theme-balham",
+    #     dashGridOptions={
+    #        "rowBuffer": 0,
+    #        "maxBlocksInCache": 1,
+    #        # "cacheBlockSize": 100,
+    #        # "cacheOverflowSize": 2,
+    #        # "maxConcurrentDatasourceRequests": 1,
+    #        "infiniteInitialRowCount": 40,
+    #        "rowSelection":"single",
+    #         # "pagination": True,
+    #         # "paginationAutoPageSize": True
+    #     },
+    #     style={"height": "55vh"},
+    # )
 
 def create_main_map(database):
     print("Function call create_main_map")
@@ -130,7 +139,21 @@ def create_main_map(database):
 
 def update_dashboard(database):
     print("Function call update_dashboard")
+    # if hasattr(database, "fig_plotMap") == False:
+    #     fig_plotMap = plotMap(database, database.module, database.maptype)
+    #     print("Create new fig_plotMap")
+    # else:
+    #     fig_plotMap = database.fig_plotMap
+    #     print("found existing fig_plotMap")
+
     # print({"styleConditions": [{"condition": "params.rowIndex === " + str(database.idxBinShort), "style": {"backgroundColor": "red"}}]})
+    if hasattr(database, "idxBinLong") == True and hasattr(database, "idxBinShort") == True:
+        if database.idxBinShort < 0:
+                return \
+                    plotMap(database, database.module, database.maptype), \
+                    None, \
+                    None
+
     return \
         plotMap(database, database.module, database.maptype), \
         [ dcc.Graph(figure=x, style={"height": "35vh"}) for x in plotSpectra(database) ], \
@@ -253,12 +276,36 @@ def load_selects(n_clicks, path_gist_run):
         [
             dmc.Col(
                 id="child-main-map",
-                children=[dcc.Graph(id="main-map")],
+                children=[
+                    dcc.Graph(
+                        id="main-map",
+                        style={"height": "55vh"},
+                    )
+                ],
                 span=6,
             ),
             dmc.Col(
                 id="child-main-table",
-                children=[dag.AgGrid(id="main-table")],
+                children=[
+                    dag.AgGrid(
+                        id="main-table",
+                        columnSize="sizeToFit",
+                        columnSizeOptions={
+                            "defaultMinWidth": 110,
+                            # "defaultMaxWidth": 111,
+                        },
+                        defaultColDef={"resizable": True, "sortable": True},
+                        rowModelType="infinite",
+                        className="ag-theme-balham",
+                        dashGridOptions={
+                            "rowBuffer": 0,
+                            "maxBlocksInCache": 1,
+                            "infiniteInitialRowCount": 40,
+                            "rowSelection":"single",
+                        },
+                        style={"height": "55vh"},
+                        )
+                ],
                 span=6,
             ),
         ], \
@@ -274,7 +321,11 @@ def load_selects(n_clicks, path_gist_run):
 
 
 @callback(
-    Output("child-main-table", "children"),
+    # Output("child-main-table", "children"),
+    Output("main-table", "rowData"),
+    Output("main-table", "columnDefs"),
+    Output("main-table", "columnSize"),
+    Output("main-table", "columnSizeOptions"),
     Output("parameter-select", "data"),
     Output("parameter-select", "value"),
     Input("module-select", "value"),
@@ -285,8 +336,11 @@ def select_module(value):
     print("select_module", value)
     names = getattr(database, value).names
     database.module = module_names[module_table_names.index(value)]
-    return [create_main_table(database, value)], [{"value": parameter_i, "label": parameter_i} for parameter_i in names], None
-
+    columnDefs = create_main_table(database, value)
+    # return [create_main_table(database, value)], [{"value": parameter_i, "label": parameter_i} for parameter_i in names], None
+    # return [create_main_table(database, value)], [{"value": parameter_i, "label": parameter_i} for parameter_i in names], names[0]
+    return database.current_df.to_dict("records"), columnDefs, "sizeToFit", {"defaultMinWidth": 115}, \
+        [{"value": parameter_i, "label": parameter_i} for parameter_i in names], names[0]
 
 @callback(
     Output("child-main-map", "children"),
@@ -334,15 +388,25 @@ def display_click_vorbin(clickData, cellClicked):
         if clickData == None:
             raise PreventUpdate
         else:
+            print(clickData)
+            remove_idxBin(database)
             database.idxBinLong, database.idxBinShort = getVoronoiBin(database, clickData["points"][0]["x"], clickData["points"][0]["y"])
-            print(database.idxBinLong, database.idxBinShort)
+            # print(database.idxBinLong, database.idxBinShort)
             return update_dashboard(database)
     elif triggered_id == "main-table":
         if cellClicked == None:
             raise PreventUpdate
         else:
-            database.idxBinLong, database.idxBinShort = None, int(cellClicked["rowId"])
-            print(database.idxBinLong, database.idxBinShort)
+            print(cellClicked)
+            remove_idxBin(database)
+            if database.module in ['TABLE', 'MASK']:
+                database.idxBinLong = int(cellClicked["rowId"])
+                print(['binid', database.table['BIN_ID'][database.idxBinLong]])
+
+                database.idxBinShort = database.table['BIN_ID'][database.idxBinLong]
+            else:
+                database.idxBinShort = int(cellClicked["rowId"])
+            # print(database.idxBinShort)
             return update_dashboard(database)
 
 
