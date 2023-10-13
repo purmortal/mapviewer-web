@@ -80,7 +80,13 @@ def plotMap(self, module, maptype):
                     x=x,
                     y=y,
                     labels={'x': 'x [arcsec]', 'y':'y [arcsec]', 'color': clabel},
-                    color_continuous_scale=cmap)
+                    color_continuous_scale=cmap,
+                    aspect='equal')
+    # fig = go.Figure(data=go.Heatmap(
+    #                            z=np.rot90(image)[::-1],
+    #                            x=x,
+    #                            y=y,
+    #                             labels={'x': 'x [arcsec]', 'y':'y [arcsec]', 'color': clabel}))
 
     if hasattr(self, 'idxBinShort') == True:
         if self.idxBinShort >= 0:
@@ -119,11 +125,11 @@ def plotSpectra(self):
     if self.KIN == True:
         fig = plotSpectraKIN(self, self.Spectra[self.idxBinShort], self.kinBestfit[self.idxBinShort], self.kinGoodpix)
         if 'V' in self.kinResults.names  and  'SIGMA' in self.kinResults.names  and  'H3' in self.kinResults.names  and  'H4' in self.kinResults.names:
-            fig.update_layout(title={'text': "Stellar kinematics: V={:.1f}km/s, SIGMA={:.1f}km/s, H3={:.2f}, H4={:.2f}".format(self.kinResults_Vorbin.V[self.idxBinShort], self.kinResults_Vorbin.SIGMA[self.idxBinShort], self.kinResults_Vorbin.H3[self.idxBinShort], self.kinResults_Vorbin.H4[self.idxBinShort]),
+            fig.update_layout(title={'text': "Stellar kinematics: V={:.2f}km/s, SIGMA={:.2f}km/s, H3={:.3f}, H4={:.3f}".format(self.kinResults_Vorbin.V[self.idxBinShort], self.kinResults_Vorbin.SIGMA[self.idxBinShort], self.kinResults_Vorbin.H3[self.idxBinShort], self.kinResults_Vorbin.H4[self.idxBinShort]),
                                      'x': 0.5, 'y':0.95,
                                      'xanchor':'center', 'yanchor':'top'})
         elif 'V' in self.kinResults.names  and  'SIGMA' in self.kinResults.names:
-            fig.update_layout(title={'text': "Stellar kinematics: V={:.1f}km/s, SIGMA={:.1f}km/s".format(self.kinResults_Vorbin.V[self.idxBinShort], self.kinResults_Vorbin.SIGMA[self.idxBinShort]),
+            fig.update_layout(title={'text': "Stellar kinematics: V={:.2f}km/s, SIGMA={:.2f}km/s".format(self.kinResults_Vorbin.V[self.idxBinShort], self.kinResults_Vorbin.SIGMA[self.idxBinShort]),
                                      'x': 0.5, 'y':0.95,
                                      'xanchor':'center', 'yanchor':'top'})
         figs.append(fig)
@@ -137,7 +143,7 @@ def plotSpectra(self):
             # self.axes[2].set_title("SPAXEL_ID = {:d}".format(self.self.idxBinLong), loc='right')
         try:
             line='0' # need to modify for the future
-            fig.update_layout(title={'text': "Emission-line kinematics: v={:.1f}km/s, sigma={:.1f}km/s".format(self.gasResults_Vorbin[line+'_V'][self.idxBinShort], self.gasResults_Vorbin[line+'_S'][self.idxBinShort]),
+            fig.update_layout(title={'text': "Emission-line kinematics: v={:.2f}km/s, sigma={:.2f}km/s".format(self.gasResults_Vorbin[line+'_V'][self.idxBinShort], self.gasResults_Vorbin[line+'_S'][self.idxBinShort]),
                                      'x': 0.5, 'y':0.95,
                                      'xanchor':'center', 'yanchor':'top'})
         except:

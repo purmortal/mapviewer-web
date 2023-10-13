@@ -157,6 +157,8 @@ class gistDataBase():
                 self.EmissionSubtractedSpectraSPAXEL = np.array( fits.open(self.dirprefix+"_gas-cleaned_SPAXEL.fits")[1].data.SPEC )
 
             gas              = fits.open(self.dirprefix+'_gas_'+self.gasLevel+'.fits')[1].data
+            for i in range(len(gas.columns)):
+                gas.columns[i].name = gas.columns[i].name.replace('.', '_')
             self.gasBestfit  = fits.open(self.dirprefix+'_gas-bestfit_'+self.gasLevel+'.fits')[1].data.BESTFIT
             self.gasLambda   = fits.open(self.dirprefix+'_gas-bestfit_'+self.gasLevel+'.fits')[2].data.LOGLAM
             self.gasLambdaLIN  = np.exp(self.gasLambda)

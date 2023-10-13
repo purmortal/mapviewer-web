@@ -8,6 +8,7 @@ from time import perf_counter as clock
 import dash_mantine_components as dmc
 import dash_ag_grid as dag
 from dash.exceptions import PreventUpdate
+import dash_auth
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -24,7 +25,12 @@ database = gistDataBase()
 external_stylesheets = [dmc.theme.DEFAULT_COLORS]
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 
-
+auth = dash_auth.BasicAuth(
+    app,
+    {
+        'testgeckos': 'geckostest'
+    }
+)
 
 # Complicated version by coloring the selected row
 # def update_dashboard(database):
@@ -124,7 +130,7 @@ def create_main_table(database, value):
            # "cacheBlockSize": 100,
            # "cacheOverflowSize": 2,
            # "maxConcurrentDatasourceRequests": 1,
-           "infiniteInitialRowCount": 40,
+           "infiniteInitialRowCount": 20,
            "rowSelection":"single",
             # "pagination": True,
             # "paginationAutoPageSize": True
