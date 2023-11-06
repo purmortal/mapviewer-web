@@ -1,5 +1,7 @@
 from astropy.io import fits
 from astropy.table import Table
+import yaml
+import pandas as pd
 import numpy as np
 import os
 
@@ -14,6 +16,24 @@ def table2pandas(table, addid=True):
         if df[col].dtype == 'float64':
             df[col] = df[col].round(3)
     return df
+
+def load_config(directory):
+    with open(directory+'/CONFIG', "r") as file:
+        conf = yaml.load(file, Loader=yaml.FullLoader)
+
+    conf_df = pd.DataFrame(columns=['Module', 'Configs', 'Values'])
+    for module in conf.keys():
+        config_i = 0
+        for config in conf[module].keys():
+            if config_i == 0:
+                new = pd.DataFrame(columns=conf_df.columns, data=[[module, config, conf[module][config]]])
+                conf_df = pd.concat([conf_df, new], axis=0)
+            else:
+                new = pd.DataFrame(columns=conf_df.columns, data=[['', config, conf[module][config]]])
+                conf_df = pd.concat([conf_df, new], axis=0)
+            config_i += 1
+    return conf_df
+
 
 
 class gistDataBase():
@@ -47,6 +67,7 @@ class gistDataBase():
 
     def loadData(self, path_gist_run):
         self.dialogRunSelection(path_gist_run)
+        self.CONFIG_df = load_config(path_gist_run)
 
 
        # Check if *_table.fits is available. This file is required!
@@ -261,5 +282,3 @@ class gistDataBase():
         self.LsLevelSelected  = 'ADAPTED'
         self.AoNThreshold     = 3
         self.forAleksandra    = False
-
-

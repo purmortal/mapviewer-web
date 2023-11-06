@@ -63,7 +63,21 @@ def create_property_groups(database):
                       for parameter_i in getattr(database, module_table_names[module_names.index(database.module)]).names],
                 style={"width": '12vw', "marginTop": 12, "marginBottom": 12},
                 maxDropdownHeight=500,
-            )
+            ),
+            dmc.ActionIcon(
+                DashIconify(icon="ph:info-fill"),
+                id="config-demo-button",
+                color="blue",
+                variant="filled",
+                size="lg",
+                style={"marginTop": 12, "marginBottom": 12}
+            ),
+            dmc.Modal(
+                title="Master-Configuration",
+                id="config-show",
+                size="70%",
+                zIndex=10000,
+            ),
         ]
 
 
@@ -126,17 +140,30 @@ def update_dashboard(database):
                     plotMap(database, database.module, database.maptype), \
                     None, \
                     None
-
+    print(plotMap(database, database.module, database.maptype))
     return \
         plotMap(database, database.module, database.maptype), \
         [ dcc.Graph(figure=x, style={"height": "35vh"}) for x in plotSpectra(database) ], \
         [ dcc.Graph(figure=plotSFH(database), style={"height": "35vh"} ) ] + [ dcc.Graph( figure=x, style={"height": "35vh"} ) for x in plotMDF(database) ]
 
 
+def show_config(database):
+    return [dag.AgGrid(
+                id="config_table",
+                rowData=database.CONFIG_df.to_dict("records"),
+                columnDefs=[{"field": "Module", "width": "10"}, {"field": "Configs", "width": "10"}, {"field": "Values", "width": "80"}],
+                columnSize="sizeToFit",
+                columnSizeOptions={
+                    "defaultMinWidth": 120,
+                },
+                defaultColDef={"resizable": True},
+                className="ag-theme-balham",
+                style={"height": "55vh"}
+            )]
 
 # App layout
 app.layout = dmc.Container([
-    dmc.Title("MapViewer-Web 1.0", color="blue", size="h3"),
+    dmc.Title("MapViewer-Web: Visualizing galaxy properties from the GIST pipeline products (v1.0)", color="blue", size="h3"),
     dmc.Grid(
         children=[
             dmc.Col(
@@ -165,13 +192,27 @@ app.layout = dmc.Container([
                         children=[
                             dmc.SegmentedControl(
                                 id="module-select",
-                                data = [{"value": "tem", "label": "No data loaded"}],
+                                data = [{"value": "tem", "label": "Wait for data to be loaded"}],
                                 style={"width": "20vw", "marginTop": 12, "marginBottom": 12},
                             ),
                             dmc.Select(
                                 id="parameter-select",
                                 style={"width": '12vw', "marginTop": 12, "marginBottom": 12},
                                 maxDropdownHeight=500,
+                            ),
+                            dmc.ActionIcon(
+                                DashIconify(icon="ph:info-fill"),
+                                id="config-demo-button",
+                                color="blue",
+                                variant="filled",
+                                size="lg",
+                                style={"marginTop": 12, "marginBottom": 12}
+                            ),
+                            dmc.Modal(
+                                title="Master-Configuration",
+                                size="70%",
+                                id="config-show",
+                                zIndex=10000,
                             ),
                         ],
                         align="inherit",
@@ -228,7 +269,7 @@ app.layout = dmc.Container([
     State("data-directory-ptah", "value"),
     prevent_initial_call=True
 )
-def load_selects(n_clicks, path_gist_run):
+def call_load_selects(n_clicks, path_gist_run):
     '''
     Update the figures after selecting a new galaxy property
     :param n_clicks:
@@ -274,7 +315,7 @@ def load_selects(n_clicks, path_gist_run):
     Input("module-select", "value"),
     prevent_initial_call=True
 )
-def select_module(value):
+def call_select_module(value):
     '''
     Callback when clicking a galaxy property module
     :param value:
@@ -290,7 +331,7 @@ def select_module(value):
     Input("parameter-select", "value"),
     prevent_initial_call=True
 )
-def select_parameter(value):
+def call_select_parameter(value):
     '''
     Callback when clicking a galaxy property parameter
     :param value:
@@ -312,7 +353,7 @@ def select_parameter(value):
     Input("main-table", "cellClicked"),
     prevent_initial_call=True
 )
-def display_click_vorbin(clickData, cellClicked):
+def call_display_click_vorbin(clickData, cellClicked):
     '''
     Callback when clicking a Voronoi Bin on the map or table
     :param clickData:
@@ -340,6 +381,16 @@ def display_click_vorbin(clickData, cellClicked):
                 database.idxBinShort = int(cellClicked["rowId"])
             return update_dashboard(database)
 
+
+@callback(
+    Output("config-show", "opened"),
+    Output("config-show", 'children'),
+    Input("config-demo-button", "n_clicks"),
+    State("config-show", "opened"),
+    prevent_initial_call=True,
+)
+def call_show_config(nc, opened):
+    return [not opened, show_config(database)]
 
 
 
