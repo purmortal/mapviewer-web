@@ -3,7 +3,7 @@ from plotData import *
 from helperFunctions import *
 from dash_iconify import DashIconify
 
-from dash import Dash, dcc, callback, Output, Input, ctx, State, no_update, Patch
+from dash import Dash, dcc, callback, Output, Input, ctx, State, no_update, Patch, clientside_callback
 import dash_mantine_components as dmc
 import dash_ag_grid as dag
 from dash.exceptions import PreventUpdate
@@ -97,6 +97,7 @@ def create_main_table(database, value):
     return  dag.AgGrid(
         id="main-table",
         rowData=database.current_df.to_dict("records"),
+        # rowData=None,
         columnDefs=[{"field": i} for i in database.current_df.columns],
         columnSize="sizeToFit",
         columnSizeOptions={
@@ -254,7 +255,17 @@ app.layout = dmc.Container([
             ),
             dmc.Col(
                 id="child-main-table",
-                children=[dag.AgGrid(id="main-table")],
+                children=[dag.AgGrid(
+                    id="main-table",
+                    # columnSize="sizeToFit",
+                    # columnSizeOptions={
+                    #     "defaultMinWidth": 120,
+                    # },
+                    # defaultColDef={"resizable": True, "sortable": True},
+                    # rowModelType="infinite",
+                    # className="ag-theme-balham",
+                )
+                ],
                 span=6,
             ),
         ],
@@ -347,6 +358,7 @@ def call_select_module(value):
     database.module = module_names[module_table_names.index(value)]
     return [create_main_table(database, value)], [{"value": parameter_i, "label": parameter_i} for parameter_i in names], names[0]
 
+
 @callback(
     Output("child-main-map", "children"),
     Input("parameter-select", "value"),
@@ -364,6 +376,37 @@ def call_select_parameter(value):
     database.maptype = value
     return [create_main_map(database)]
 
+
+
+# @callback(
+#     Output("main-table", "getRowsResponse"),
+#     Input("main-table", "getRowsRequest"),
+# )
+# def infinite_scroll(request):
+#     print('infinite_scroll')
+#     print(request)
+#     # print(database.current_df)
+#     try:
+#         type(database.current_df)
+#     except:
+#         return no_update
+#     if request == None:
+#         request = dict()
+#         request["startRow"] = 0
+#         request["endRow"] = 100
+#         # return no_update
+#     partial = database.current_df.iloc[request["startRow"] : request["endRow"]]
+#     print(partial)
+#     return {"rowData": partial.to_dict("records"), "rowCount": len(database.current_df.index)}
+#
+# app.clientside_callback(
+#     """function (n) {
+#         dash_ag_grid.getApi('grid').purgeInfiniteCache()
+#         return dash_clientside.no_update
+#     }""",
+#     Output("module-select", "n_clicks"),
+#     Input("module-select", "n_clicks"),
+#     prevent_initial_call=True)
 
 
 @callback(
