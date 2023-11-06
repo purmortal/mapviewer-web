@@ -88,14 +88,19 @@ def plotMap(self, module, maptype):
     #                            y=y,
     #                             labels={'x': 'x [arcsec]', 'y':'y [arcsec]', 'color': clabel}))
 
-    if hasattr(self, 'idxBinShort') == True:
-        if self.idxBinShort >= 0:
-            fig.add_trace(go.Scatter(x=[self.table.XBIN[self.table['BIN_ID']==self.idxBinShort][0]], y=[self.table.YBIN[self.table['BIN_ID']==self.idxBinShort][0]], opacity=0.6,
-                                     mode='markers', name='VorBin', marker=dict(symbol='x', line_width=1.5, line_color='white', color='black', size=8)))
+    if hasattr(self, 'idxBinShort') == True and self.idxBinShort >= 0:
+        fig.add_trace(go.Scatter(x=[self.table.XBIN[self.table['BIN_ID']==self.idxBinShort][0]], y=[self.table.YBIN[self.table['BIN_ID']==self.idxBinShort][0]], opacity=0.6,
+                                 mode='markers', name='VorBin', marker=dict(symbol='x', line_width=1.5, line_color='white', color='black', size=8)))
+    else:
+       fig.add_trace(go.Scatter(x=None, y=None, opacity=0.6,
+                         mode='markers', name='VorBin', marker=dict(symbol='x', line_width=1.5, line_color='white', color='black', size=8)))
     if hasattr(self, 'idxBinLong') == True:
         # if self.idxBinLong != None:
             fig.add_trace(go.Scatter(x=[self.table.X[self.idxBinLong]], y=[self.table.Y[self.idxBinLong]], opacity=0.6,
                                      mode='markers', name='SpaxelBin', marker=dict(symbol='circle', line_width=1.5, line_color='white', color='black', size=8)))
+    else:
+        fig.add_trace(go.Scatter(x=None, y=None, opacity=0.6,
+                         mode='markers', name='SpaxelBin', marker=dict(symbol='circle', line_width=1.5, line_color='white', color='black', size=8)))
 
 
     # print(np.nanpercentile(image, [10, 95]))

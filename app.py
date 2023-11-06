@@ -3,7 +3,7 @@ from plotData import *
 from helperFunctions import *
 from dash_iconify import DashIconify
 
-from dash import Dash, dcc, callback, Output, Input, ctx, State, no_update
+from dash import Dash, dcc, callback, Output, Input, ctx, State, no_update, Patch
 import dash_mantine_components as dmc
 import dash_ag_grid as dag
 from dash.exceptions import PreventUpdate
@@ -127,22 +127,43 @@ def create_main_map(database):
                  )
 
 
-def update_dashboard(database):
+def update_main_map_selectedbin(database, patched_main_map):
+    '''
+    Using Patch function to update main table when selecting a VorBin
+    :param database:
+    :param patched_main_map:
+    :return:
+    '''
+    if hasattr(database, "idxBinShort") == True:
+        patched_main_map.data[1]['x'] = [database.table.XBIN[database.table['BIN_ID']==database.idxBinShort][0]]
+        patched_main_map.data[1]['y'] = [database.table.YBIN[database.table['BIN_ID']==database.idxBinShort][0]]
+    else:
+        patched_main_map.data[1]['x'] = None
+        patched_main_map.data[1]['y'] = None
+    if hasattr(database, "idxBinLong") == True:
+        patched_main_map.data[2]['x'] = [database.table.X[database.idxBinLong]]
+        patched_main_map.data[2]['y'] = [database.table.Y[database.idxBinLong]]
+    else:
+        patched_main_map.data[2]['x'] = None
+        patched_main_map.data[2]['y'] = None
+    return patched_main_map
+
+
+def update_dashboard(database, patched_main_map):
     '''
     Function to update all the figures after selecting a VorBin
-    :param database: 
-    :return: 
+    :param database:
+    :return:
     '''
     print("Function call update_dashboard")
     if hasattr(database, "idxBinLong") == True and hasattr(database, "idxBinShort") == True:
         if database.idxBinShort < 0:
                 return \
-                    plotMap(database, database.module, database.maptype), \
+                    update_main_map_selectedbin(database, patched_main_map), \
                     None, \
                     None
-    print(plotMap(database, database.module, database.maptype))
     return \
-        plotMap(database, database.module, database.maptype), \
+        update_main_map_selectedbin(database, patched_main_map), \
         [ dcc.Graph(figure=x, style={"height": "35vh"}) for x in plotSpectra(database) ], \
         [ dcc.Graph(figure=plotSFH(database), style={"height": "35vh"} ) ] + [ dcc.Graph( figure=x, style={"height": "35vh"} ) for x in plotMDF(database) ]
 
@@ -362,13 +383,15 @@ def call_display_click_vorbin(clickData, cellClicked):
     '''
     print("Interactivity call display_click_vorbin")
     triggered_id = ctx.triggered_id
+    patched_main_map = Patch()
+
     if triggered_id == "main-map":
         if clickData == None:
             raise PreventUpdate
         else:
             remove_idxBin(database)
             database.idxBinLong, database.idxBinShort = getVoronoiBin(database, clickData["points"][0]["x"], clickData["points"][0]["y"])
-            return update_dashboard(database)
+            return update_dashboard(database, patched_main_map)
     elif triggered_id == "main-table":
         if cellClicked == None:
             raise PreventUpdate
@@ -379,7 +402,7 @@ def call_display_click_vorbin(clickData, cellClicked):
                 database.idxBinShort = database.table['BIN_ID'][database.idxBinLong]
             else:
                 database.idxBinShort = int(cellClicked["rowId"])
-            return update_dashboard(database)
+            return update_dashboard(database, patched_main_map)
 
 
 @callback(
