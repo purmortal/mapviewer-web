@@ -4,7 +4,6 @@ from helperFunctions import *
 from dash_iconify import DashIconify
 
 from dash import Dash, dcc, callback, Output, Input, ctx, State, no_update
-from time import perf_counter as clock
 import dash_mantine_components as dmc
 import dash_ag_grid as dag
 from dash.exceptions import PreventUpdate
@@ -32,32 +31,15 @@ auth = dash_auth.BasicAuth(
     }
 )
 
-# Complicated version by coloring the selected row
-# def update_dashboard(database):
-#     # print({"styleConditions": [{"condition": "params.rowIndex === " + str(database.idxBinShort), "style": {"backgroundColor": "red"}}]})
-#     return \
-#         plotMap(database, "TABLE", "BIN_ID"), \
-#         [
-#                     dag.AgGrid(
-#                         id="main-table",
-#                         rowData=database.kinResults_Vorbin_df.to_dict("records"),
-#                         columnDefs=[{"field": "BIN_ID", "pinned": "left", "lockPinned": True}] +
-#                                    [{"field": i, "valueFormatter": {"function": "d3.format(",.3f")(params.value)"}} for i in database.kinResults_Vorbin_df.columns if i != "BIN_ID"],
-#                         columnSize="sizeToFit",
-#                         columnSizeOptions={"defaultMinWidth": 100, "defaultMaxWidth": 200},
-#                         defaultColDef={"resizable": True, "sortable": True, "filter": True},
-#                         className="ag-theme-balham",
-#                         dashGridOptions={"rowSelection":"single"},
-#                         style={"height": "55vh"},
-#                         getRowStyle={"styleConditions": [{"condition": "params.rowIndex === " + str(database.idxBinShort), "style": {"backgroundColor": "lightcoral"}}]},
-#                         ),
-#                     html.Div(id="quickclick-output"),
-#                 ], \
-#         [ dcc.Graph(figure=x, style={"height": "35vh"}) for x in plotSpectra(database) ], \
-#         [ dcc.Graph(figure=plotSFH(database), style={"height": "35vh"} ) ] + [ dcc.Graph( figure=x, style={"height": "38vh"} ) for x in plotMDF(database) ]
+
 
 
 def create_property_groups(database):
+    '''
+    Function to create the selection buttons for all galxy properties
+    :param database:
+    :return:
+    '''
     print("Function call create_property_groups")
     if hasattr(database, "module") == False:
         if database.KIN == True:
@@ -84,40 +66,25 @@ def create_property_groups(database):
             )
         ]
 
-# def update_main_table_columnDefs(database):
-#     return [{"field": i} for i in database.current_df.columns]
+
 def create_main_table(database, value):
+    '''
+    Function to create AgGrid Table for inspection
+    :param database:
+    :param value:
+    :return:
+    '''
     print("Function call create_main_table")
     if value in ["table", "Mask"]:
         database.current_df = getattr(database, value+"_df")
-        # columnSize = None
-        # columnSizeOptions = None
-        # defaultColDef={"resizable": False, "sortable": True}
-
     else:
         database.current_df = getattr(database, value+"_Vorbin_df")
-        # columnSize = "sizeToFit"
-        # columnSizeOptions={
-        #     "defaultMinWidth": 120,
-        # }
-        # defaultColDef={"resizable": True, "sortable": True},
 
-    # columnDefs = []
-    # if "ID" in database.current_df.columns:
-    #     columnDefs += [{"field": "ID", "pinned": "left", "lockPinned": True}]
-    # if "BIN_ID" in database.current_df.columns:
-    #     columnDefs += [{"field": "BIN_ID", "pinned": "left", "lockPinned": True}]
-    # columnDefs += [{"field": i, "valueFormatter": {"function": "d3.format('.3f')(params.value)"}}
-    #                for i in database.current_df.columns if i != "BIN_ID" and i != "ID"]
-    # columnDefs += [{"field": i}
-    #                for i in database.current_df.columns if i != "BIN_ID" and i != "ID"]
-    # columnDefs=[{"field": i} for i in database.current_df.columns]
     return  dag.AgGrid(
         id="main-table",
         rowData=database.current_df.to_dict("records"),
         columnDefs=[{"field": i} for i in database.current_df.columns],
         columnSize="sizeToFit",
-        # scrollTo={"rowPosition":"bottom"},
         columnSizeOptions={
             "defaultMinWidth": 120,
         },
@@ -127,34 +94,32 @@ def create_main_table(database, value):
         dashGridOptions={
            "rowBuffer": 0,
            "maxBlocksInCache": 1,
-           # "cacheBlockSize": 100,
-           # "cacheOverflowSize": 2,
-           # "maxConcurrentDatasourceRequests": 1,
            "infiniteInitialRowCount": 20,
            "rowSelection":"single",
-            # "pagination": True,
-            # "paginationAutoPageSize": True
         },
         style={"height": "55vh"},
     )
 
 def create_main_map(database):
+    '''
+    Function to create main property distribution map
+    :param database:
+    :return:
+    '''
     print("Function call create_main_map")
     return dcc.Graph(id="main-map",
                  figure=plotMap(database, database.module, database.maptype),
                  style={"height": "55vh"},
                  )
 
-def update_dashboard(database):
-    print("Function call update_dashboard")
-    # if hasattr(database, "fig_plotMap") == False:
-    #     fig_plotMap = plotMap(database, database.module, database.maptype)
-    #     print("Create new fig_plotMap")
-    # else:
-    #     fig_plotMap = database.fig_plotMap
-    #     print("found existing fig_plotMap")
 
-    # print({"styleConditions": [{"condition": "params.rowIndex === " + str(database.idxBinShort), "style": {"backgroundColor": "red"}}]})
+def update_dashboard(database):
+    '''
+    Function to update all the figures after selecting a VorBin
+    :param database: 
+    :return: 
+    '''
+    print("Function call update_dashboard")
     if hasattr(database, "idxBinLong") == True and hasattr(database, "idxBinShort") == True:
         if database.idxBinShort < 0:
                 return \
@@ -256,9 +221,6 @@ app.layout = dmc.Container([
 
 
 @callback(
-    # Output("child-main-table", "children"),
-    # Output("child-main-map", "children"),
-    # Output("parameter-select", "data"),
     Output("property-selections", "children"),
     Output("children-main-info", "children"),
     Output("spec-inspect", "children"),
@@ -267,17 +229,14 @@ app.layout = dmc.Container([
     prevent_initial_call=True
 )
 def load_selects(n_clicks, path_gist_run):
+    '''
+    Update the figures after selecting a new galaxy property
+    :param n_clicks:
+    :param path_gist_run:
+    :return:
+    '''
     print("----------------------------------")
     print("Interactivity call load_selects")
-    # print("select_module", value)
-    # names = getattr(database, value).names
-    # database.module = modules[results.index(value)]
-    # print(value)
-    # print(type(value))
-    # path_gist_run = "/home/zwan0382/Documents/projects/mapviewer-web/NGC0000Example"
-    # path_gist_run = "/home/zwan0382/Documents/projects/mapviewer-web/resultsRevisedREr5"
-    print(path_gist_run)
-    # database = gistDataBase()
     database.reset()
     database.loadData(path_gist_run)
     return create_property_groups(database), \
@@ -297,30 +256,6 @@ def load_selects(n_clicks, path_gist_run):
                 children=[dag.AgGrid(id="main-table")],
                 span=6,
             ),
-            # dmc.Col(
-            #     id="child-main-table",
-            #     children=[
-            #         dag.AgGrid(
-            #             id="main-table",
-            #             columnSize="sizeToFit",
-            #             columnSizeOptions={
-            #                 "defaultMinWidth": 110,
-            #                 # "defaultMaxWidth": 111,
-            #             },
-            #             defaultColDef={"resizable": True, "sortable": True},
-            #             rowModelType="infinite",
-            #             className="ag-theme-balham",
-            #             dashGridOptions={
-            #                 "rowBuffer": 0,
-            #                 "maxBlocksInCache": 1,
-            #                 "infiniteInitialRowCount": 40,
-            #                 "rowSelection":"single",
-            #             },
-            #             style={"height": "55vh"},
-            #             )
-            #     ],
-            #     span=6,
-            # ),
         ], \
         [
             dmc.Col(
@@ -330,28 +265,25 @@ def load_selects(n_clicks, path_gist_run):
                 id="plot-mfd-map",
                 span=4,),
         ]
-    # return create_property_groups(database), [create_main_table(database, database.module)], [create_main_map(database)]
 
 
 @callback(
     Output("child-main-table", "children"),
-    # Output("main-table", "rowData"),
-    # Output("main-table", "columnDefs"),
-    # Output("main-table", "columnSize"),
-    # Output("main-table", "columnSizeOptions"),
     Output("parameter-select", "data"),
     Output("parameter-select", "value"),
     Input("module-select", "value"),
     prevent_initial_call=True
 )
 def select_module(value):
+    '''
+    Callback when clicking a galaxy property module
+    :param value:
+    :return:
+    '''
     print("Interactivity call select_module")
-    print("select_module", value)
     names = getattr(database, value).names
     database.module = module_names[module_table_names.index(value)]
     return [create_main_table(database, value)], [{"value": parameter_i, "label": parameter_i} for parameter_i in names], names[0]
-    # return database.current_df.to_dict("records"), columnDefs, "sizeToFit", {"defaultMinWidth": 115}, \
-    #     [{"value": parameter_i, "label": parameter_i} for parameter_i in names], names[0]
 
 @callback(
     Output("child-main-map", "children"),
@@ -359,28 +291,16 @@ def select_module(value):
     prevent_initial_call=True
 )
 def select_parameter(value):
+    '''
+    Callback when clicking a galaxy property parameter
+    :param value:
+    :return:
+    '''
     print("Interactivity call select_parameter")
-    print(["select_parameter", value])
     if value == None:
         raise PreventUpdate
     database.maptype = value
-    print(["database", database.module, database.maptype])
     return [create_main_map(database)]
-
-# @callback(
-#     Output("main-table", "getRowsResponse"),
-#     Input("main-table", "getRowsRequest"),
-#     prevent_initial_call=True,
-# )
-# def infinite_scroll(request):
-#     print("Interactivity call infinite_scroll")
-#     print(request)
-#     # time.sleep(2)
-#     if request is None:
-#         return no_update
-#     partial = database.current_df.iloc[request["startRow"] : request["endRow"]]
-#     print(partial)
-#     return {"rowData": partial.to_dict("records"), "rowCount": len(database.current_df.index)}
 
 
 
@@ -393,6 +313,12 @@ def select_parameter(value):
     prevent_initial_call=True
 )
 def display_click_vorbin(clickData, cellClicked):
+    '''
+    Callback when clicking a Voronoi Bin on the map or table
+    :param clickData:
+    :param cellClicked:
+    :return:
+    '''
     print("Interactivity call display_click_vorbin")
     triggered_id = ctx.triggered_id
     if triggered_id == "main-map":
