@@ -70,10 +70,10 @@ module_names = ["TABLE", "MASK", "KIN", "GAS", "SFH", "LS"]
 module_table_names = ["table", "Mask", "kinResults", "gasResults", "sfhResults", "lsResults"]
 plot_modules = ["KIN", "GAS", "SFH", "LS"]
 database = gistDataBase()
-# path_gist_run = '/import/photon1/zwan0382/mwdatacube/geckos/ESO120-016_ALPHAS'
+path_gist_run = '/import/photon1/zwan0382/mwdatacube/geckos/ESO120-016_ALPHAS'
 # path_gist_run = '/import/photon1/zwan0382/mwdatacube/geckos/ESO120-016'
 # path_gist_run = '/import/photon1/zwan0382/mwdatacube/hpc_output/gist_results/NGC5746_linear_losvd_nonoise_muse_noyoungest_true_n1e8p/gist/resultsRevisedREr5mdeg4'
-path_gist_run = '/suphys/zwan0382/Documents/projects/mapviewer-web/NGC0000Example'
+# path_gist_run = '/suphys/zwan0382/Documents/projects/mapviewer-web/NGC0000Example'
 database.loadData(path_gist_run)
 
 percentiles = [1, 99]

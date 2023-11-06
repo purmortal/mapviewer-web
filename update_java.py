@@ -6,9 +6,9 @@ html_dir = os.getcwd()
 # Function to extract unique values of modules, magtypes, and percentiles
 def extract_values(files):
 
-    modules = set()
+    modules = []
     module_magtypes = {}
-    percentiles = set()
+    percentiles = []
 
     for filename in files:
 
@@ -17,47 +17,26 @@ def extract_values(files):
 
         if len(parts) >= 4 and parts[0].startswith("galinspec"):
 
-            print(filename)
 
             module, magtype = parts[1], parts[2]
-            # Combine additional parts into the "magtype"
             if len(parts) > 4:
                 magtype += "_" + "_".join(parts[3:-1])
             percentile = parts[-1]
 
-            modules.add(module)
+            if module not in modules:
+                modules.append(module)
             if module not in module_magtypes:
-                module_magtypes[module] = set()
-            module_magtypes[module].add(magtype)
-            percentiles.add(percentile)
+                module_magtypes[module] = []
+            if magtype not in module_magtypes[module]:
+                module_magtypes[module].append(magtype)
+            if percentile not in percentiles:
+                percentiles.append(percentile)
 
-            print(modules, module_magtypes, percentiles)
 
     return list(modules), {module: list(magtypes) for module, magtypes in module_magtypes.items()}, list(percentiles)
 
 
 
-# Function to extract available modules, moduleMagtypes, and percentiles
-def extract_info_from_html(html_dir):
-    modules = set()
-    module_magtypes = {}
-    percentiles = set()
-
-    for filename in os.listdir(html_dir):
-        if filename.endswith(".html"):
-            parts = filename.split("_")
-            if len(parts) >= 4:
-                module = parts[1]
-                magtype = parts[2]
-                percentile = parts[3].split(".html")[0]
-
-                modules.add(module)
-                if module not in module_magtypes:
-                    module_magtypes[module] = set()
-                module_magtypes[module].add(magtype)
-                percentiles.add(percentile)
-
-    return sorted(list(modules)), {module: sorted(list(magtypes)) for module, magtypes in module_magtypes.items()}, sorted(list(percentiles))
 
 # Function to generate JavaScript code
 def generate_js_code(modules, module_magtypes, percentiles):
@@ -136,7 +115,6 @@ html_files = os.listdir(html_dir)
 # Sort the list by last modified time
 html_files = sorted(html_files, key=lambda x: os.path.getmtime(os.path.join(html_dir, x)))
 
-# print(html_files)
 
 # Extract unique modules, magtypes, and percentiles
 modules, module_magtypes, percentiles = extract_values(html_files)
