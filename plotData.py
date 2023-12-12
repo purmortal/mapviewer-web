@@ -131,11 +131,11 @@ def plotSpectra(self):
         fig = plotSpectraKIN(self, self.Spectra[self.idxBinShort], self.kinBestfit[self.idxBinShort], self.kinGoodpix)
         if 'V' in self.kinResults.names  and  'SIGMA' in self.kinResults.names  and  'H3' in self.kinResults.names  and  'H4' in self.kinResults.names:
             fig.update_layout(title={'text': "Stellar kinematics: V={:.2f}km/s, SIGMA={:.2f}km/s, H3={:.3f}, H4={:.3f}".format(self.kinResults_Vorbin.V[self.idxBinShort], self.kinResults_Vorbin.SIGMA[self.idxBinShort], self.kinResults_Vorbin.H3[self.idxBinShort], self.kinResults_Vorbin.H4[self.idxBinShort]),
-                                     'x': 0.5, 'y':0.95,
+                                     'x': 0.50, 'y':0.92,
                                      'xanchor':'center', 'yanchor':'top'})
         elif 'V' in self.kinResults.names  and  'SIGMA' in self.kinResults.names:
             fig.update_layout(title={'text': "Stellar kinematics: V={:.2f}km/s, SIGMA={:.2f}km/s".format(self.kinResults_Vorbin.V[self.idxBinShort], self.kinResults_Vorbin.SIGMA[self.idxBinShort]),
-                                     'x': 0.5, 'y':0.95,
+                                     'x': 0.50, 'y':0.92,
                                      'xanchor':'center', 'yanchor':'top'})
         figs.append(fig)
 
@@ -149,11 +149,11 @@ def plotSpectra(self):
         try:
             line='0' # need to modify for the future
             fig.update_layout(title={'text': "Emission-line kinematics: v={:.2f}km/s, sigma={:.2f}km/s".format(self.gasResults_Vorbin[line+'_V'][self.idxBinShort], self.gasResults_Vorbin[line+'_S'][self.idxBinShort]),
-                                     'x': 0.5, 'y':0.95,
+                                     'x': 0.50, 'y':0.92,
                                      'xanchor':'center', 'yanchor':'top'})
         except:
             fig.update_layout(title={'text': 'Emission-line analysis',
-                                     'x': 0.5, 'y':0.95,
+                                     'x': 0.50, 'y':0.92,
                                      'xanchor':'center', 'yanchor':'top'})
         figs.append(fig)
 
@@ -161,7 +161,7 @@ def plotSpectra(self):
     if self.SFH == True:
         fig = plotSpectraSFH(self, self.Spectra[self.idxBinShort], self.sfhBestfit[self.idxBinShort], self.sfhGoodpix)
         fig.update_layout(title={'text': "Stellar populations: Age={:.2f} Gyr, [M/H]={:.2f}, [alpha/Fe]={:.2f}".format(self.sfhResults_Vorbin['AGE'][self.idxBinShort], self.sfhResults_Vorbin['METAL'][self.idxBinShort], self.sfhResults_Vorbin['ALPHA'][self.idxBinShort]),
-                                 'x': 0.5, 'y':0.95,
+                                 'x': 0.50, 'y':0.92,
                                  'xanchor':'center', 'yanchor':'top'})
         figs.append(fig)
 
@@ -169,9 +169,6 @@ def plotSpectra(self):
 
 
 def plotSpectraKIN(self, spectra, bestfit, goodpix):
-    # spectra = self.Spectra[self.idxBinShort]
-    # bestfit = self.kinBestfit[self.idxBinShort]
-    # goodpix = self.kinGoodpix
 
     # Compile information on masked regions
     masked = np.flatnonzero( np.abs(np.diff(goodpix)) > 1)
@@ -181,8 +178,6 @@ def plotSpectraKIN(self, spectra, bestfit, goodpix):
         vlines.append( goodpix[i+1]-1 )
     vlines = np.array(vlines)
 
-    # Clear panels
-    # self.axes[panel].cla()
 
     # Offset of residuals
     offset = np.min(bestfit[:]) - (np.max(bestfit[:]) - np.min(bestfit[:]))*0.10
@@ -209,20 +204,16 @@ def plotSpectraKIN(self, spectra, bestfit, goodpix):
                              name=None, mode='lines', line=dict(color='black',     width=1)))
     for i in range( len(np.where(vlines != 0)[0]) ):
         if i%2 == 0:
-            # self.axes[panel].axvspan(self.Lambda[idxLam][vlines[i]], self.Lambda[idxLam][vlines[i+1]], color='k', alpha=0.1, lw=0)
             fig.add_vrect(x0=self.LambdaLIN[idxLam][vlines[i]], x1=self.LambdaLIN[idxLam][vlines[i+1]], line_width=0, fillcolor="grey", opacity=0.1)
     fig.update_layout(xaxis=dict(range=[self.LambdaLIN[idxLam][0], self.LambdaLIN[idxLam][-1]]),
                       xaxis_title='Wavelength (Angstrom)', yaxis_title='Flux', showlegend=False,
-                      margin=dict(l=3, r=3, t=35, b=3))
+                      margin=dict(l=0, r=0, t=35, b=0))
     fig.update_layout(hovermode="x unified")
 
     return fig
 
 
 def plotSpectraGAS(self, spectra, bestfit, goodpix):
-    # spectra = self.Spectra[self.idxBinShort]
-    # bestfit = self.gasBestfit[self.idxBinShort]
-    # goodpix = self.kinGoodpix
 
     # Compile information on masked regions
     masked = np.flatnonzero( np.abs(np.diff(goodpix)) > 1)
@@ -232,8 +223,6 @@ def plotSpectraGAS(self, spectra, bestfit, goodpix):
         vlines.append( goodpix[i+1]-1 )
     vlines = np.array(vlines)
 
-    # Clear panels
-    # self.axes[panel].cla()
 
     # Offset of residuals
     offset = np.min(bestfit[:]) - (np.max(bestfit[:]) - np.min(bestfit[:]))*0.10
@@ -247,15 +236,10 @@ def plotSpectraGAS(self, spectra, bestfit, goodpix):
     if self.gasLevel == 'BIN':
         fig.add_trace(go.Scatter(x=self.gasLambdaLIN, y=self.EmissionSubtractedSpectraBIN[self.idxBinShort,:],
                              name='gasLevelBIN', mode='lines', line=dict(color='orange',     width=2)))
-        # self.axes[panel].plot(self.gasLambda, self.EmissionSubtractedSpectraBIN[self.self.idxBinShort,:], color='orange', linewidth=2)
     elif self.gasLevel == 'SPAXEL':
         fig.add_trace(go.Scatter(x=self.gasLambdaLIN, y=self.EmissionSubtractedSpectraSPAXEL[self.idxBinLong,:],
                              name='gasLevelSPAXEL', mode='lines', line=dict(color='orange',     width=2)))
-        # self.axes[panel].plot(self.gasLambda, self.EmissionSubtractedSpectraSPAXEL[self.idxBinLong,:], color='orange', linewidth=2)
 
-    # self.axes[panel].plot(self.Lambda[idxLam], spectra[idxLam],               color='k',         linewidth=2)
-    # self.axes[panel].plot(self.gasLambda, bestfit[:],                         color='crimson',   linewidth=2)
-    # self.axes[panel].plot(self.gasLambda, spectra[idxLam] - bestfit + offset, color='limegreen', linewidth=2)
     fig.add_trace(go.Scatter(x=self.LambdaLIN[idxLam], y=spectra[idxLam],
                  name='Spectrum', mode='lines', line=dict(color='black',     width=2)))
     fig.add_trace(go.Scatter(x=self.gasLambdaLIN, y=bestfit[:],
@@ -268,30 +252,20 @@ def plotSpectraGAS(self, spectra, bestfit, goodpix):
     while i < len(vlines)-1:
         badpix = np.arange(vlines[i],vlines[i+1]+1)
         i += 2
-    # self.axes[panel].plot( [self.Lambda[idxLam][0], self.Lambda[idxLam][-1]], [offset,offset], color='k', linewidth=0.5 )
     fig.add_trace(go.Scatter(x=[self.LambdaLIN[idxLam][0], self.LambdaLIN[idxLam][-1]], y=[offset,offset],
                          name=None, mode='lines', line=dict(color='black',     width=1)))
     for i in range( len(np.where(vlines != 0)[0]) ):
         if i%2 == 0:
-            # self.axes[panel].axvspan(self.Lambda[idxLam][vlines[i]], self.Lambda[idxLam][vlines[i+1]], color='k', alpha=0.1, lw=0)
             fig.add_vrect(x0=self.LambdaLIN[idxLam][vlines[i]], x1=self.LambdaLIN[idxLam][vlines[i+1]], line_width=0, fillcolor="grey", opacity=0.1)
     fig.update_layout(xaxis=dict(range=[self.LambdaLIN[idxLam][0], self.LambdaLIN[idxLam][-1]]),
                       xaxis_title='Wavelength (Angstrom)', yaxis_title='Flux', showlegend=False,
-                      margin=dict(l=3, r=3, t=35, b=3))
+                      margin=dict(l=0, r=0, t=35, b=0))
     fig.update_layout(hovermode="x unified")
 
-    # self.axes[panel].set_xlim([self.Lambda[idxLam][0], self.Lambda[idxLam][-1]])
-    # self.axes[panel].set_ylabel('Flux')
-    #
-    # ticks = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format( np.exp(x) ))
-    # self.axes[panel].xaxis.set_major_formatter(ticks)
     return fig
 
 
 def plotSpectraSFH(self, spectra, bestfit, goodpix):
-    # spectra = self.Spectra[self.idxBinShort]
-    # bestfit = self.sfhBestfit[self.idxBinShort]
-    # goodpix = self.kinGoodpix
 
     # Compile information on masked regions
     masked = np.flatnonzero( np.abs(np.diff(goodpix)) > 1)
@@ -300,9 +274,6 @@ def plotSpectraSFH(self, spectra, bestfit, goodpix):
         vlines.append( goodpix[i]+1 )
         vlines.append( goodpix[i+1]-1 )
     vlines = np.array(vlines)
-
-    # Clear panels
-    # self.axes[panel].cla()
 
     # Offset of residuals
     offset = np.min(bestfit[:]) - (np.max(bestfit[:]) - np.min(bestfit[:]))*0.10
@@ -317,8 +288,6 @@ def plotSpectraSFH(self, spectra, bestfit, goodpix):
         idxMin     = np.where( self.gasLambda == self.sfhLambda[0]  )[0]
         idxMax     = np.where( self.gasLambda == self.sfhLambda[-1] )[0]
         idxLamGand = np.arange(idxMin, idxMax+1)
-        # self.axes[panel].plot(self.gasLambda[idxLamGand], self.EmissionSubtractedSpectraBIN[self.self.idxBinShort,idxLamGand],                    color='orange',    linewidth=2)
-        # self.axes[panel].plot(self.gasLambda[idxLamGand], self.EmissionSubtractedSpectraBIN[self.self.idxBinShort,idxLamGand] - bestfit + offset, color='limegreen', linewidth=2)
         fig.add_trace(go.Scatter(x=self.gasLambdaLIN[idxLamGand], y=self.EmissionSubtractedSpectraBIN[self.idxBinShort,idxLamGand],
                      name='EmissionSub', mode='lines', line=dict(color='orange',     width=2)))
         fig.add_trace(go.Scatter(x=self.gasLambdaLIN[idxLamGand], y=self.EmissionSubtractedSpectraBIN[self.idxBinShort,idxLamGand] - bestfit + offset,
@@ -326,8 +295,6 @@ def plotSpectraSFH(self, spectra, bestfit, goodpix):
     except:
         pass
 
-    # self.axes[panel].plot(self.Lambda[idxLam], spectra[idxLam], color='k',       linewidth=2)
-    # self.axes[panel].plot(self.sfhLambda,      bestfit[:],      color='crimson', linewidth=2)
     fig.add_trace(go.Scatter(x=self.LambdaLIN[idxLam], y=spectra[idxLam],
                  name='Spectrum', mode='lines', line=dict(color='black',     width=2)))
     fig.add_trace(go.Scatter(x=self.sfhLambdaLIN, y=bestfit[:],
@@ -338,28 +305,20 @@ def plotSpectraSFH(self, spectra, bestfit, goodpix):
     while i < len(vlines)-1:
         badpix = np.arange(vlines[i],vlines[i+1]+1)
         i += 2
-    # self.axes[panel].plot( [self.Lambda[idxLam][0], self.Lambda[idxLam][-1]], [offset,offset], color='k', linewidth=0.5 )
     fig.add_trace(go.Scatter(x=[self.LambdaLIN[idxLam][0], self.LambdaLIN[idxLam][-1]], y=[offset,offset],
                          name=None, mode='lines', line=dict(color='black',     width=1)))
     for i in range( len(np.where(vlines != 0)[0]) ):
         if i%2 == 0:
-            # self.axes[panel].axvspan(self.Lambda[idxLam][vlines[i]], self.Lambda[idxLam][vlines[i+1]], color='k', alpha=0.1, lw=0)
             fig.add_vrect(x0=self.LambdaLIN[idxLam][vlines[i]], x1=self.LambdaLIN[idxLam][vlines[i+1]], line_width=0, fillcolor="grey", opacity=0.1)
 
-    # self.axes[panel].set_xlim([self.Lambda[idxLam][0], self.Lambda[idxLam][-1]])
-    # self.axes[panel].set_ylabel('Flux')
     fig.update_layout(xaxis=dict(range=[self.LambdaLIN[idxLam][0], self.LambdaLIN[idxLam][-1]]),
                       xaxis_title='Wavelength (Angstrom)', yaxis_title='Flux', showlegend=False,
-                      margin=dict(l=3, r=3, t=35, b=3))
+                      margin=dict(l=0, r=0, t=35, b=0))
     fig.update_layout(hovermode="x unified")
-    # ticks = ticker.FuncFormatter(lambda x, pos: '{0:g}'.format( np.exp(x) ))
-    # self.axes[panel].xaxis.set_major_formatter(ticks)
     return fig
 
 
 def plotSFH(self):
-    # Clear panels
-    # self.axes[panel].cla()
 
     # Get star formation history
     collapsed = np.sum( self.Weights, axis=(1,3) )

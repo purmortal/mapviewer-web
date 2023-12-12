@@ -40,10 +40,10 @@ class gistDataBase():
     """ Load all available data to make it accessible for plotting. """
 
 
-    def __init__(self):
+    def __init__(self, settings=None):
 
         # Some default settings
-        self.initialization()
+        self.initialization(settings)
 
         # Setup the rest
 
@@ -95,8 +95,10 @@ class gistDataBase():
 
         if len( self.gasLevelAvailable ) == 1:
             self.gasLevel = self.gasLevelAvailable[0]
+            self.gasLevel_onlyBIN = True
         else:
             self.gasLevel = self.gasLevelSelected
+            self.gasLevel_onlyBIN = False
 
         self.SFH           = os.path.isfile(self.dirprefix+'_sfh.fits')
 
@@ -115,8 +117,10 @@ class gistDataBase():
 
         if len( self.LsLevelAvailable ) == 1:
             self.LsLevel = self.LsLevelAvailable[0]
+            self.LsLevel_onlyORIGINAL = True
         else:
             self.LsLevel = self.LsLevelSelected
+            self.LsLevel_onlyORIGINAL = False
 
 
 
@@ -267,18 +271,22 @@ class gistDataBase():
             self.lsResults = None
 
 
-    def reset(self):
+    def reset(self, settings):
         keys = list(self.__dict__.keys())
         if len(keys) > 0:
             for key in keys:
                 delattr(self, key)
 
-        self.initialization()
+        self.initialization(settings)
 
-    def initialization(self):
-        self.restrict2voronoi = 2
-        self.markercolor      = 'r'
-        self.gasLevelSelected = 'BIN'
-        self.LsLevelSelected  = 'ADAPTED'
-        self.AoNThreshold     = 3
-        self.forAleksandra    = False
+    def initialization(self, settings=None):
+        if settings == None:
+            self.restrict2voronoi = 2
+            self.gasLevelSelected = 'BIN'
+            self.LsLevelSelected  = 'ADAPTED'
+            self.AoNThreshold     = 3
+        else:
+            self.restrict2voronoi = settings['restrict2voronoi']
+            self.gasLevelSelected = settings['gasLevelSelected']
+            self.LsLevelSelected  = settings['LsLevelSelected']
+            self.AoNThreshold     = settings['AoNThreshold']

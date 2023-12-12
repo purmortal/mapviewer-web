@@ -462,4 +462,4 @@ def call_show_config(nc, opened):
 
 # Run the App
 if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5801)
+    app.run(debug=False, host="0.0.0.0", port=5801)
