@@ -284,7 +284,7 @@ app.layout = dmc.Container([
                     dmc.Group(
                         children=[
                             dmc.TextInput(
-                                style={"width": "37vw", "marginTop": 12, "marginBottom": 12},
+                                style={"width": "35vw", "marginTop": 12, "marginBottom": 12},
                                 placeholder="please input your GIST directory path",
                                 id="data-directory-ptah",
                             ),
