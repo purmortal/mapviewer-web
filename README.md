@@ -1,4 +1,4 @@
 
-# MapViewer-Web: Visualizing galaxy properties from the GIST pipeline products
+# MapViewer-Web gist products example
 
-Text to be added
+Contains gistPipeline data products for test
