@@ -53,7 +53,7 @@ class gistDataBase():
         Select the output directory of the run to be displayed. Basic checks
         and corrections are applied.
         """
-        # tmp0 = '/home/zwan0382/Documents/projects/mapviewer-web/resultsRevisedREr5/'
+        # tmp0 = '/home/zwan0382/Documents/projects/Mapviewer_web/resultsRevisedREr5/'
         if len( tmp0 ) > 0:
             if tmp0.split('/')[-1] == 'maps':
                 tmp0 = tmp0[:-5]

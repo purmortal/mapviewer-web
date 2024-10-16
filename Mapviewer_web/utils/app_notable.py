@@ -1,8 +1,8 @@
-from loadData import gistDataBase
-from plotData import *
-from helperFunctions import *
-from dash_iconify import DashIconify
+from Mapviewer_web.utils.loadData import gistDataBase
+from Mapviewer_web.utils.plotData import *
+from Mapviewer_web.utils.helperFunctions import *
 
+from dash_iconify import DashIconify
 from dash import Dash, dcc, callback, Output, Input, ctx, State, no_update, Patch, clientside_callback
 import dash_mantine_components as dmc
 import dash_ag_grid as dag
@@ -30,12 +30,12 @@ database = gistDataBase(settings)
 external_stylesheets = [dmc.theme.DEFAULT_COLORS]
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 
-auth = dash_auth.BasicAuth(
-    app,
-    {
-        'testgeckos': 'geckostest'
-    }
-)
+# auth = dash_auth.BasicAuth(
+#     app,
+#     {
+#         'testgeckos': 'geckostest'
+#     }
+# )
 
 
 def create_property_groups(database):
@@ -160,7 +160,7 @@ def show_config(database):
 
 def show_table(database):
     print("Function call create_main_table")
-    print(database.current_df)
+    # print(database.current_df)
     return  \
         [
             dag.AgGrid(
@@ -630,6 +630,6 @@ def call_show_settings(nc1, nc2, nc3, opened):
         return [not opened, show_settings(settings), no_update]
 
 
-# Run the App
-if __name__ == "__main__":
-    app.run(debug=True, host="0.0.0.0", port=5802)
+# # Run the App
+# if __name__ == "__main__":
+#     app.run(debug=True, host="0.0.0.0", port=5802)

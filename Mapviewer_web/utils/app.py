@@ -24,12 +24,12 @@ database = gistDataBase()
 external_stylesheets = [dmc.theme.DEFAULT_COLORS]
 app = Dash(__name__, external_stylesheets=external_stylesheets)
 
-auth = dash_auth.BasicAuth(
-    app,
-    {
-        'testgeckos': 'geckostest'
-    }
-)
+# auth = dash_auth.BasicAuth(
+#     app,
+#     {
+#         'testgeckos': 'geckostest'
+#     }
+# )
 
 
 
@@ -461,5 +461,5 @@ def call_show_config(nc, opened):
 
 
 # Run the App
-if __name__ == "__main__":
-    app.run(debug=False, host="0.0.0.0", port=5801)
+# if __name__ == "__main__":
+#     app.run(debug=False, host="0.0.0.0", port=5801)
