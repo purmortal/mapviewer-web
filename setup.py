@@ -9,7 +9,7 @@ def versionNumber():
     with open(os.path.join(os.path.dirname(os.path.abspath(__file__)), 'Mapviewer_web/_version.py')) as versionFile:
         return(versionFile.readlines()[-1].split()[-1].strip("\"'"))
 
-setup(name='Mapviewer_web',
+setup(name='mapviewer-web',
       version=versionNumber(),
       description='MapViewer-Web: Visualizing galaxy properties from the GIST pipeline products',
       long_description_content_type="text/markdown",
