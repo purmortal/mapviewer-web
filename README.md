@@ -1,6 +1,7 @@
 
 # MapViewer-Web: Visualizing galaxy properties from the GIST pipeline products
 
+[![pypi](https://img.shields.io/badge/python-pypi-blue.svg)](https://pypi.org/project/mapviewer-web/)
 [![LICENSE](https://img.shields.io/badge/lisence-MIT-blue.svg)](https://github.com/purmortal/mapviewer-web/blob/master/LICENSE)
 
 Mapviewer-web is a web-based tool for visualizing galaxy properties analyzed by the [GIST Pipeline](https://gitlab.com/abittner/gist-development).
@@ -29,4 +30,4 @@ This software is governed by the MIT License. In brief, you can use, distribute,
 
 
 ## Contact 
-- Zixian Wang (University of Utah, wang.zixian.astro@gmail.com; zixian.wang@utah.edu)
+- Zixian Wang (University of Utah, wang.zixian.astro@gmail.com)
