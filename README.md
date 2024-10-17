@@ -1,4 +1,4 @@
 
-# MapViewer-Web: Visualizing galaxy properties from the GIST pipeline products
+# MapViewer-Web
 
-Text to be added
+A version to create static websites
