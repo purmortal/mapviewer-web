@@ -272,7 +272,7 @@ def show_settings(settings):
 # App layout
 app.layout = dmc.Container([
     dmc.Title(
-        "MapViewer-Web: Visualizing galaxy properties from the GIST pipeline products (v1.0)",
+        "MapViewer-Web: Visualizing galaxy properties from the GIST pipeline products",
         color="blue",
         size="h3",
         id="title"

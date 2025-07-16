@@ -36,7 +36,8 @@ setup(name='mapviewer-web',
           'dash_iconify',
           'dash-mantine-components==0.12.1',
           'dash_ag_grid',
-          'dash_auth'
+          'dash_auth',
+          'h5py'
       ],
       python_requires='>=3.6',
       entry_points={

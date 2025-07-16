@@ -185,7 +185,7 @@ def show_config(database):
 
 # App layout
 app.layout = dmc.Container([
-    dmc.Title("MapViewer-Web: Visualizing galaxy properties from the GIST pipeline products (v1.0)", color="blue", size="h3"),
+    dmc.Title("MapViewer-Web: Visualizing galaxy properties from the GIST pipeline products", color="blue", size="h3"),
     dmc.Grid(
         children=[
             dmc.Col(
