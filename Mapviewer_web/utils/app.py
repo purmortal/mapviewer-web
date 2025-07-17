@@ -23,7 +23,7 @@ database = gistDataBase()
 # Initialize the app - incorporate a Dash Mantine theme
 external_stylesheets = [dmc.theme.DEFAULT_COLORS]
 app = Dash(__name__, external_stylesheets=external_stylesheets)
-
+app.title = 'Mapviewer-Web'
 # auth = dash_auth.BasicAuth(
 #     app,
 #     {

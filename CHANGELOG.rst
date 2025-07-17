@@ -1,3 +1,7 @@
+1.2.1
+=====
+- Change html title
+
 1.2.0
 =====
 - Fix the issue of long loading time for nGIST products
