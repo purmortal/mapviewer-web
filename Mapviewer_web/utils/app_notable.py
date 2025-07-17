@@ -8,6 +8,7 @@ import dash_mantine_components as dmc
 import dash_ag_grid as dag
 from dash.exceptions import PreventUpdate
 import dash_auth
+import time
 
 import warnings
 warnings.filterwarnings("ignore")
@@ -62,7 +63,7 @@ def create_property_groups(database):
                     data=[{"value": "table", "label": "TABLE"}] +
                          [{"value": module_table_names[i], "label": module_names[i]}
                           for i in range(1, len(module_names)) if getattr(database, module_names[i])],
-                    style={"width": "20vw", "marginTop": 12, "marginBottom": 12},
+                    style={"width": "22vw", "marginTop": 12, "marginBottom": 12},
                 ),
             dmc.Select(
                 placeholder="choose a parameter",
@@ -70,7 +71,7 @@ def create_property_groups(database):
                 value=database.maptype,
                 data=[{"value": parameter_i, "label": parameter_i}
                       for parameter_i in getattr(database, module_table_names[module_names.index(database.module)]).names],
-                style={"width": '10vw', "marginTop": 12, "marginBottom": 12},
+                style={"width": '8vw', "marginTop": 12, "marginBottom": 12},
                 maxDropdownHeight=500,
             ),
         ]
@@ -292,7 +293,7 @@ app.layout = dmc.Container([
                                 id="load-data",
                                 children="Load Database",
                                 leftIcon=DashIconify(icon="fluent:database-plug-connected-20-filled"),
-                                style={"width": "10vw", "marginTop": 12, "marginBottom": 12}
+                                style={"width": "11vw", "marginTop": 12, "marginBottom": 12}
                             ),
                         ],
                     ),
@@ -306,11 +307,11 @@ app.layout = dmc.Container([
                             dmc.SegmentedControl(
                                 id="module-select",
                                 data = [{"value": "tem", "label": "Wait for data to be loaded"}],
-                                style={"width": "20vw", "marginTop": 12, "marginBottom": 12},
+                                style={"width": "22vw", "marginTop": 12, "marginBottom": 12},
                             ),
                             dmc.Select(
                                 id="parameter-select",
-                                style={"width": '10vw', "marginTop": 12, "marginBottom": 12},
+                                style={"width": '8vw', "marginTop": 12, "marginBottom": 12},
                                 maxDropdownHeight=500,
                             ),
                         ],
@@ -630,6 +631,6 @@ def call_show_settings(nc1, nc2, nc3, opened):
         return [not opened, show_settings(settings), no_update]
 
 
-# # Run the App
+# Run the App
 # if __name__ == "__main__":
 #     app.run(debug=True, host="0.0.0.0", port=5802)

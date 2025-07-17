@@ -202,9 +202,26 @@ def plotSpectraKIN(self, spectra, bestfit, goodpix):
         i += 2
     fig.add_trace(go.Scatter(x=[self.LambdaLIN[idxLam][0], self.LambdaLIN[idxLam][-1]], y=[offset,offset],
                              name=None, mode='lines', line=dict(color='black',     width=1)))
+
+    shapes = []
     for i in range( len(np.where(vlines != 0)[0]) ):
         if i%2 == 0:
-            fig.add_vrect(x0=self.LambdaLIN[idxLam][vlines[i]], x1=self.LambdaLIN[idxLam][vlines[i+1]], line_width=0, fillcolor="grey", opacity=0.1)
+            x0 = self.LambdaLIN[idxLam][vlines[i]]
+            x1 = self.LambdaLIN[idxLam][vlines[i+1]]
+            shapes.append({
+                'type': 'rect',
+                'xref': 'x',
+                'yref': 'paper',
+                'x0': x0,
+                'x1': x1,
+                'y0': 0,
+                'y1': 1,
+                'fillcolor': 'grey',
+                'opacity': 0.1,
+                'line': {'width': 0}
+            })
+    fig.update_layout(shapes=shapes)
+
     fig.update_layout(xaxis=dict(range=[self.LambdaLIN[idxLam][0], self.LambdaLIN[idxLam][-1]]),
                       xaxis_title='Wavelength (Angstrom)', yaxis_title='Flux', showlegend=False,
                       margin=dict(l=0, r=0, t=35, b=0))
@@ -254,9 +271,26 @@ def plotSpectraGAS(self, spectra, bestfit, goodpix):
         i += 2
     fig.add_trace(go.Scatter(x=[self.LambdaLIN[idxLam][0], self.LambdaLIN[idxLam][-1]], y=[offset,offset],
                          name=None, mode='lines', line=dict(color='black',     width=1)))
+
+    shapes = []
     for i in range( len(np.where(vlines != 0)[0]) ):
         if i%2 == 0:
-            fig.add_vrect(x0=self.LambdaLIN[idxLam][vlines[i]], x1=self.LambdaLIN[idxLam][vlines[i+1]], line_width=0, fillcolor="grey", opacity=0.1)
+            x0 = self.LambdaLIN[idxLam][vlines[i]]
+            x1 = self.LambdaLIN[idxLam][vlines[i+1]]
+            shapes.append({
+                'type': 'rect',
+                'xref': 'x',
+                'yref': 'paper',
+                'x0': x0,
+                'x1': x1,
+                'y0': 0,
+                'y1': 1,
+                'fillcolor': 'grey',
+                'opacity': 0.1,
+                'line': {'width': 0}
+            })
+    fig.update_layout(shapes=shapes)
+
     fig.update_layout(xaxis=dict(range=[self.LambdaLIN[idxLam][0], self.LambdaLIN[idxLam][-1]]),
                       xaxis_title='Wavelength (Angstrom)', yaxis_title='Flux', showlegend=False,
                       margin=dict(l=0, r=0, t=35, b=0))
@@ -307,9 +341,25 @@ def plotSpectraSFH(self, spectra, bestfit, goodpix):
         i += 2
     fig.add_trace(go.Scatter(x=[self.LambdaLIN[idxLam][0], self.LambdaLIN[idxLam][-1]], y=[offset,offset],
                          name=None, mode='lines', line=dict(color='black',     width=1)))
+
+    shapes = []
     for i in range( len(np.where(vlines != 0)[0]) ):
         if i%2 == 0:
-            fig.add_vrect(x0=self.LambdaLIN[idxLam][vlines[i]], x1=self.LambdaLIN[idxLam][vlines[i+1]], line_width=0, fillcolor="grey", opacity=0.1)
+            x0 = self.LambdaLIN[idxLam][vlines[i]]
+            x1 = self.LambdaLIN[idxLam][vlines[i+1]]
+            shapes.append({
+                'type': 'rect',
+                'xref': 'x',
+                'yref': 'paper',
+                'x0': x0,
+                'x1': x1,
+                'y0': 0,
+                'y1': 1,
+                'fillcolor': 'grey',
+                'opacity': 0.1,
+                'line': {'width': 0}
+            })
+    fig.update_layout(shapes=shapes)
 
     fig.update_layout(xaxis=dict(range=[self.LambdaLIN[idxLam][0], self.LambdaLIN[idxLam][-1]]),
                       xaxis_title='Wavelength (Angstrom)', yaxis_title='Flux', showlegend=False,
