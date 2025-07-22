@@ -1,3 +1,7 @@
+1.2.2
+=====
+- change to app.run for python==3.12
+
 1.2.1
 =====
 - Change html title

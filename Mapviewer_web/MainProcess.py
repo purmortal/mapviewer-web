@@ -20,4 +20,4 @@ def start_app(args=None):
     else:
         port = int(CommandOptions.Port)
 
-    app.run_server(debug=False, host=host, port=port)
+    app.run(debug=False, host=host, port=port)
